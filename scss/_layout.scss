@@ -126,33 +126,33 @@ body {
 
   &__actions {
     display: flex;
-    align-items: flex-start;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 0.45rem;
+  }
+
+  &__tool-row {
+    display: flex;
+    align-items: center;
     gap: 0.55rem;
   }
 
-  &__tool-stack {
-    display: flex;
-    flex-direction: column;
-    align-items: stretch;
-    gap: 0.4rem;
-    width: 80px;
-  }
-
+  // Same proportions as .switch (42×24 ≈ 1.75:1), scaled a bit larger.
   &__pedal-switch {
     flex-direction: column;
     gap: 0.28rem;
-    width: 100%;
+    width: 88px;
 
     .switch__track {
       width: 100%;
-      height: 22px;
+      height: 38px;
     }
 
     .switch__thumb {
-      top: 3px;
-      left: 3px;
-      width: 14px;
-      height: 14px;
+      top: 4px;
+      left: 4px;
+      width: 28px;
+      height: 28px;
     }
 
     .switch__text {
@@ -165,12 +165,19 @@ body {
       line-height: 1.2;
     }
 
-    input:checked + .switch__track .switch__thumb {
-      transform: translateX(58px);
+    input:checked + .switch__track {
+      background: var(--danger-soft);
+      border-color: var(--danger);
+
+      .switch__thumb {
+        transform: translateX(50px);
+        background: var(--danger);
+        box-shadow: 0 0 0 3px var(--danger-soft);
+      }
     }
 
     input:checked ~ .switch__text {
-      color: var(--accent-strong);
+      color: var(--danger);
     }
   }
 }

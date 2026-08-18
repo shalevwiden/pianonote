@@ -76,7 +76,7 @@
         </nav>
 
         <div class="header__actions">
-          <div class="header__tool-stack">
+          <div class="header__tool-row">
             <button
               class="icon-btn"
               id="btnSettings"
@@ -91,32 +91,32 @@
                 />
               </svg>
             </button>
-            <label
-              class="switch header__pedal-switch"
-              title="Pedal count — tally notes while the damper is held. Lift the pedal to reset."
+            <button
+              class="icon-btn"
+              id="themeToggle"
+              type="button"
+              aria-label="Toggle theme"
+              title="Toggle theme"
             >
-              <input type="checkbox" id="pedalCountToggle" />
-              <span class="switch__track"><span class="switch__thumb"></span></span>
-              <span class="switch__text">Pedal count</span>
-            </label>
+              <svg class="icon-moon" viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M21 14.5A8.5 8.5 0 1 1 9.5 3 7 7 0 0 0 21 14.5z" />
+              </svg>
+              <svg class="icon-sun" viewBox="0 0 24 24" aria-hidden="true">
+                <circle cx="12" cy="12" r="4" />
+                <path
+                  d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"
+                />
+              </svg>
+            </button>
           </div>
-          <button
-            class="icon-btn"
-            id="themeToggle"
-            type="button"
-            aria-label="Toggle theme"
-            title="Toggle theme"
+          <label
+            class="switch header__pedal-switch"
+            title="Pedal count — tally notes while the damper is held. Lift the pedal to reset."
           >
-            <svg class="icon-moon" viewBox="0 0 24 24" aria-hidden="true">
-              <path d="M21 14.5A8.5 8.5 0 1 1 9.5 3 7 7 0 0 0 21 14.5z" />
-            </svg>
-            <svg class="icon-sun" viewBox="0 0 24 24" aria-hidden="true">
-              <circle cx="12" cy="12" r="4" />
-              <path
-                d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"
-              />
-            </svg>
-          </button>
+            <input type="checkbox" id="pedalCountToggle" />
+            <span class="switch__track"><span class="switch__thumb"></span></span>
+            <span class="switch__text">Pedal count</span>
+          </label>
         </div>
       </header>
 

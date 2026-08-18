@@ -50,8 +50,6 @@ const ui = {
   themeToggle: $("themeToggle"),
   settingsBtn: $("btnSettings"),
   pedalCountToggle: $("pedalCountToggle"),
-  heroCounterLabel: $("heroCounterLabel"),
-  focusLabel: $("focusLabel"),
   navItems: document.querySelectorAll(".nav__item"),
   viewDashboard: $("viewDashboard"),
   viewHistory: $("viewHistory"),
@@ -343,14 +341,7 @@ function setPedalCountMode(on, { persist = true } = {}) {
     localStorage.setItem(STORAGE.pedalCount, pedalCountMode ? "on" : "off");
   }
 
-  if (pedalCountMode) {
-    pedalScopedCount = 0;
-    if (ui.heroCounterLabel) ui.heroCounterLabel.textContent = "This Pedal";
-    if (ui.focusLabel) ui.focusLabel.textContent = "This Pedal";
-  } else {
-    if (ui.heroCounterLabel) ui.heroCounterLabel.textContent = "Notes Played";
-    if (ui.focusLabel) ui.focusLabel.textContent = "Notes Played";
-  }
+  if (pedalCountMode) pedalScopedCount = 0;
 
   updateCounters();
   updateControls();
