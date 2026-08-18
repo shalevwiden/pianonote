@@ -74,7 +74,7 @@ html:has(body.landing) {
   z-index: 20;
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: flex-start;
   gap: 1rem;
   padding: 1.05rem clamp(1.25rem, 4vw, 3rem);
   transition: background 0.35s $ease-out, border-color 0.35s $ease-out,
@@ -121,6 +121,8 @@ html:has(body.landing) {
   &__links {
     display: none;
     gap: 1.6rem;
+    margin-left: 1.25rem;
+    margin-right: auto;
 
     a {
       color: var(--ink-muted);
@@ -140,6 +142,13 @@ html:has(body.landing) {
     }
   }
 
+  &__actions {
+    display: flex;
+    align-items: center;
+    gap: 0.55rem;
+    margin-left: auto;
+  }
+
   &__cta {
     padding: 0.55rem 1.05rem;
     border-radius: 999px;
@@ -148,11 +157,34 @@ html:has(body.landing) {
     text-decoration: none;
     font-size: 0.82rem;
     font-weight: 500;
-    transition: background 0.2s $ease-out, border-color 0.2s $ease-out;
+    transition: background 0.2s $ease-out, border-color 0.2s $ease-out,
+      color 0.2s $ease-out, box-shadow 0.2s $ease-out, transform 0.2s $ease-out;
 
     &:hover {
-      background: rgba(255, 255, 255, 0.06);
-      border-color: rgba(244, 241, 234, 0.28);
+      transform: translateY(-1px);
+    }
+
+    &--blog {
+      border-color: var(--line);
+      color: var(--ink);
+      background: transparent;
+
+      &:hover {
+        background: rgba(255, 255, 255, 0.06);
+        border-color: rgba(244, 241, 234, 0.28);
+      }
+    }
+
+    &--app {
+      border-color: color-mix(in srgb, var(--blue) 55%, var(--line));
+      color: var(--blue);
+      background: color-mix(in srgb, var(--blue) 8%, transparent);
+
+      &:hover {
+        border-color: var(--blue);
+        color: var(--ink);
+        background: color-mix(in srgb, var(--blue) 16%, transparent);
+      }
     }
   }
 }
@@ -1082,7 +1114,7 @@ html[data-theme="light"] .landing-nav {
     color: var(--blue-deep);
   }
 
-  .landing-nav__cta {
+  .landing-nav__cta--blog {
     color: var(--ink);
     border-color: var(--line);
     background: transparent;
@@ -1090,6 +1122,18 @@ html[data-theme="light"] .landing-nav {
     &:hover {
       background: color-mix(in srgb, var(--ink) 4%, transparent);
       border-color: color-mix(in srgb, var(--ink) 18%, transparent);
+    }
+  }
+
+  .landing-nav__cta--app {
+    border-color: color-mix(in srgb, #3d719e 45%, var(--line));
+    color: #2a557a;
+    background: color-mix(in srgb, #3d719e 8%, transparent);
+
+    &:hover {
+      border-color: #2a557a;
+      color: #10131a;
+      background: color-mix(in srgb, #3d719e 14%, transparent);
     }
   }
 }

@@ -25,14 +25,107 @@ export const HIT_ANIM_MS = 280;
 export const TAIL_MS = 1500;
 
 export const DEFAULT_VIDEO_STYLE = {
-  textMode: "gradient", // "solid" | "gradient"
-  textColor: "#ffffff",
-  textColorEnd: "#60a5fa",
+  textMode: "solid", // "solid" | "gradient"
+  textColor: "#5B9FD4",
+  textColorEnd: "#8eb4d8",
   gradientAngle: 175,
-  backgroundColor: "#050505",
+  backgroundColor: "#000000",
   showLabel: true,
   label: "NOTES PLAYED",
 };
+
+/** Solid look presets: paired background + number color. */
+export const VIDEO_LOOK_PRESETS = [
+  {
+    id: "black-blue",
+    label: "Black / Blue",
+    textMode: "solid",
+    textColor: "#5B9FD4",
+    textColorEnd: "#8eb4d8",
+    backgroundColor: "#000000",
+  },
+  {
+    id: "white-ink",
+    label: "White / Ink",
+    textMode: "solid",
+    textColor: "#111827",
+    textColorEnd: "#374151",
+    backgroundColor: "#ffffff",
+  },
+  {
+    id: "navy-ice",
+    label: "Navy / Ice",
+    textMode: "solid",
+    textColor: "#e8f1ff",
+    textColorEnd: "#93c5fd",
+    backgroundColor: "#0b1020",
+  },
+  {
+    id: "cream-terracotta",
+    label: "Cream / Ember",
+    textMode: "solid",
+    textColor: "#9a3412",
+    textColorEnd: "#c2410c",
+    backgroundColor: "#f5efe6",
+  },
+  {
+    id: "forest-mint",
+    label: "Forest / Mint",
+    textMode: "solid",
+    textColor: "#6ee7b7",
+    textColorEnd: "#a7f3d0",
+    backgroundColor: "#052e1c",
+  },
+];
+
+/** Gradient presets — always on a black background. */
+export const VIDEO_GRADIENT_PRESETS = [
+  {
+    id: "ice-blue",
+    label: "Ice → Blue",
+    textMode: "gradient",
+    textColor: "#ffffff",
+    textColorEnd: "#60a5fa",
+    gradientAngle: 175,
+    backgroundColor: "#000000",
+  },
+  {
+    id: "aqua",
+    label: "Blue → Aqua",
+    textMode: "gradient",
+    textColor: "#60a5fa",
+    textColorEnd: "#22d3ee",
+    gradientAngle: 160,
+    backgroundColor: "#000000",
+  },
+  {
+    id: "rose",
+    label: "White → Rose",
+    textMode: "gradient",
+    textColor: "#ffffff",
+    textColorEnd: "#fb7185",
+    gradientAngle: 200,
+    backgroundColor: "#000000",
+  },
+  {
+    id: "gold",
+    label: "Gold → White",
+    textMode: "gradient",
+    textColor: "#fbbf24",
+    textColorEnd: "#fff7ed",
+    gradientAngle: 145,
+    backgroundColor: "#000000",
+  },
+  {
+    id: "violet",
+    label: "Violet → Blue",
+    textMode: "gradient",
+    textColor: "#c4b5fd",
+    textColorEnd: "#38bdf8",
+    gradientAngle: 185,
+    backgroundColor: "#000000",
+  },
+];
 
 /**
  * Build a sorted list of { timeMs, count } for every note-on.
@@ -155,23 +248,23 @@ export function renderCounterFrame(ctx, options) {
   const glow = (1 - hitProgress) * 0.55;
 
   if (s.showLabel) {
-    ctx.font = `500 ${Math.round(height * 0.035)}px "Outfit", "DM Sans", system-ui, sans-serif`;
+    ctx.font = `500 ${Math.round(height * 0.04)}px "Outfit", "DM Sans", system-ui, sans-serif`;
     ctx.fillStyle = "rgba(163, 163, 163, 0.9)";
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
     ctx.letterSpacing = "0.22em";
-    ctx.fillText(s.label, width / 2, height * 0.36);
+    ctx.fillText(s.label, width / 2, height * 0.28);
     ctx.letterSpacing = "0px";
   }
 
-  const fontSize = Math.round(height * 0.22);
+  const fontSize = Math.round(height * 0.42);
   ctx.font = `600 ${fontSize}px "Outfit", "DM Sans", system-ui, sans-serif`;
   ctx.textAlign = "center";
   ctx.textBaseline = "middle";
 
   const text = Number(count).toLocaleString("en-US");
   const cx = width / 2;
-  const cy = height * 0.52;
+  const cy = height * 0.54;
 
   ctx.translate(cx, cy);
   ctx.scale(scale, scale);

@@ -18,6 +18,8 @@ import {
 } from "./history.js";
 import {
   DEFAULT_VIDEO_STYLE,
+  VIDEO_LOOK_PRESETS,
+  VIDEO_GRADIENT_PRESETS,
   VIDEO_FPS,
   VIDEO_WIDTH,
   VIDEO_HEIGHT,
@@ -40,12 +42,16 @@ const STORAGE = {
   velocity: "psr-velocity",
   source: "psr-source",
   voice: "psr-voice",
-  videoStyle: "psr-video-style",
+  videoStyle: "psr-video-style-v2",
+  pedalCount: "psr-pedal-count",
 };
 
 const ui = {
   themeToggle: $("themeToggle"),
   settingsBtn: $("btnSettings"),
+  pedalCountToggle: $("pedalCountToggle"),
+  heroCounterLabel: $("heroCounterLabel"),
+  focusLabel: $("focusLabel"),
   navItems: document.querySelectorAll(".nav__item"),
   viewDashboard: $("viewDashboard"),
   viewHistory: $("viewHistory"),
@@ -138,6 +144,10 @@ const ui = {
   btnVideoClose: $("btnVideoClose"),
   videoPreview: $("videoPreview"),
   videoMeta: $("videoMeta"),
+  videoCustomizePanel: $("videoCustomizePanel"),
+  btnVideoCustomize: $("btnVideoCustomize"),
+  videoLookPresets: $("videoLookPresets"),
+  videoGradientPresets: $("videoGradientPresets"),
   videoTextMode: $("videoTextMode"),
   videoTextColor: $("videoTextColor"),
   videoTextColorEnd: $("videoTextColorEnd"),
@@ -170,6 +180,8 @@ let selectedHistoryId = null;
 let statsClockId = null;
 /** Giant in-page counter view; deliberately not the browser Fullscreen API. */
 let focusViewOpen = false;
+let pedalCountMode = false;
+let pedalScopedCount = 0;
 
 /** Active video-editor payload (current take or History session). */
 let videoEditor = {
@@ -275,6 +287,7 @@ function handleNoteOn(note, velocity = 100) {
   piano.setActive(note, true);
   synth.noteOn(note, velocity);
   ui.nowPlaying.textContent = noteName(note);
+  registerPedalScopedNote();
   processMessage([0x90, note, velocity]);
 }
 
@@ -292,13 +305,67 @@ function processMessage(bytes, timeStamp) {
   if (!result) return;
 
   if (result.isNoteOn) {
-    const label = formatCount(result.noteCount);
-    ui.noteCount.textContent = label;
-    ui.statTotal.textContent = label;
-    if (ui.focusCount) ui.focusCount.textContent = label;
-    flashCounter();
+    if (pedalCountMode) {
+      ui.statTotal.textContent = formatCount(result.noteCount);
+    } else {
+      const label = formatCount(result.noteCount);
+      ui.noteCount.textContent = label;
+      ui.statTotal.textContent = label;
+      if (ui.focusCount) ui.focusCount.textContent = label;
+      flashCounter();
+    }
   }
   updateControls();
+}
+
+/** Count notes only while Pedal count is on and the damper is held. */
+function registerPedalScopedNote() {
+  if (!pedalCountMode || !synth.sustain) return;
+  pedalScopedCount += 1;
+  const label = formatCount(pedalScopedCount);
+  ui.noteCount.textContent = label;
+  if (ui.focusCount) ui.focusCount.textContent = label;
+  flashCounter();
+}
+
+function resetPedalScopedCount() {
+  pedalScopedCount = 0;
+  if (!pedalCountMode) return;
+  const label = formatCount(0);
+  ui.noteCount.textContent = label;
+  if (ui.focusCount) ui.focusCount.textContent = label;
+}
+
+function setPedalCountMode(on, { persist = true } = {}) {
+  pedalCountMode = Boolean(on);
+  if (ui.pedalCountToggle) ui.pedalCountToggle.checked = pedalCountMode;
+  if (persist) {
+    localStorage.setItem(STORAGE.pedalCount, pedalCountMode ? "on" : "off");
+  }
+
+  if (pedalCountMode) {
+    pedalScopedCount = 0;
+    if (ui.heroCounterLabel) ui.heroCounterLabel.textContent = "This Pedal";
+    if (ui.focusLabel) ui.focusLabel.textContent = "This Pedal";
+  } else {
+    if (ui.heroCounterLabel) ui.heroCounterLabel.textContent = "Notes Played";
+    if (ui.focusLabel) ui.focusLabel.textContent = "Notes Played";
+  }
+
+  updateCounters();
+  updateControls();
+  if (!session.active) refreshIdleHint();
+}
+
+function refreshIdleHint() {
+  if (session.active) return;
+  if (pedalCountMode) {
+    setHint("Pedal count — hold the damper and play; lift to reset.");
+  } else if (session.hasData) {
+    setHint("Session captured. Save, Export .mid, or Save Video.");
+  } else {
+    setHint("Press Record, then play your keyboard.");
+  }
 }
 
 function handleDeviceMessage(event) {
@@ -314,6 +381,7 @@ function handleDeviceMessage(event) {
     piano.setActive(note, true);
     synth.noteOn(note, data[2]);
     ui.nowPlaying.textContent = noteName(note);
+    registerPedalScopedNote();
   } else if (status === 0x80 || (status === 0x90 && data[2] === 0)) {
     // Keep the key lit while the damper pedal is holding the note.
     if (!synth.sustain) piano.setActive(note, false);
@@ -332,6 +400,7 @@ function handleDeviceMessage(event) {
       ui.nowPlaying.textContent = "—";
     }
     updatePedalStatus(down);
+    if (pedalCountMode && !down) resetPedalScopedCount();
   }
 
   processMessage(data, event.timeStamp);
@@ -374,19 +443,22 @@ function unlockAudio() {
 /* ------------------------------------------------------------------ display */
 
 function updateCounters() {
-  const notes = formatCount(session.noteCount);
+  const sessionNotes = formatCount(session.noteCount);
+  const displayNotes = pedalCountMode
+    ? formatCount(pedalScopedCount)
+    : sessionNotes;
   const nps = formatNps(session.getLiveNps());
   const elapsed = formatElapsed(session.getElapsedMs());
 
-  ui.noteCount.textContent = notes;
-  ui.statTotal.textContent = notes;
+  ui.noteCount.textContent = displayNotes;
+  ui.statTotal.textContent = sessionNotes;
   ui.statNps.textContent = nps;
   ui.statPeakNps.textContent = formatNps(session.peakNps);
   ui.statElapsed.textContent = elapsed;
   ui.eventMeta.textContent = `${formatCount(session.events.length)} events`;
 
   if (focusViewOpen) {
-    if (ui.focusCount) ui.focusCount.textContent = notes;
+    if (ui.focusCount) ui.focusCount.textContent = displayNotes;
     if (ui.focusNps) ui.focusNps.textContent = nps;
     if (ui.focusElapsed) ui.focusElapsed.textContent = elapsed;
   }
@@ -576,11 +648,7 @@ function stopRecording() {
   session.stop();
   updateCounters();
   updateControls();
-  setHint(
-    session.hasData
-      ? "Session captured. Save, Export .mid, or Save Video."
-      : "No notes were recorded."
-  );
+  refreshIdleHint();
 }
 
 function resetSession() {
@@ -589,7 +657,7 @@ function resetSession() {
   sessionSaved = false;
   updateCounters();
   updateControls();
-  setHint("Press Record, then play your keyboard.");
+  refreshIdleHint();
 }
 
 function buildSessionDraft({ exported = false } = {}) {
@@ -720,6 +788,10 @@ function loadSettings() {
   const soundOn = localStorage.getItem(STORAGE.sound) !== "off";
   synth.setEnabled(soundOn);
   ui.soundToggle.checked = soundOn;
+
+  setPedalCountMode(localStorage.getItem(STORAGE.pedalCount) === "on", {
+    persist: false,
+  });
 
   const savedVoice = localStorage.getItem(STORAGE.voice);
   const voiceId = VOICES.some((voice) => voice.id === savedVoice)
@@ -1033,12 +1105,102 @@ function applyVideoStyleToForm(style) {
   }
   if (ui.videoBgColor) ui.videoBgColor.value = s.backgroundColor;
   updateVideoGradientVisibility();
+  syncVideoPresetSelection(s);
 }
 
 function updateVideoGradientVisibility() {
   const gradient = ui.videoTextMode?.value !== "solid";
   if (ui.videoGradientRow) ui.videoGradientRow.hidden = !gradient;
   if (ui.videoAngleRow) ui.videoAngleRow.hidden = !gradient;
+}
+
+function setVideoCustomizeOpen(open) {
+  if (ui.videoCustomizePanel) ui.videoCustomizePanel.hidden = !open;
+  if (ui.btnVideoCustomize) {
+    ui.btnVideoCustomize.setAttribute("aria-expanded", open ? "true" : "false");
+    ui.btnVideoCustomize.classList.toggle("is-active", open);
+    ui.btnVideoCustomize.textContent = open ? "Hide customization" : "Customization";
+  }
+}
+
+function presetButtonHtml(preset, kind) {
+  const bg = preset.backgroundColor;
+  const start = preset.textColor;
+  const end = preset.textMode === "gradient" ? preset.textColorEnd : preset.textColor;
+  const swatch =
+    preset.textMode === "gradient"
+      ? `linear-gradient(135deg, ${start}, ${end})`
+      : start;
+  return `
+    <button
+      type="button"
+      class="video-preset"
+      data-preset-kind="${kind}"
+      data-preset-id="${preset.id}"
+      title="${preset.label}"
+      aria-label="${preset.label}"
+    >
+      <span class="video-preset__frame" style="background:${bg}">
+        <span class="video-preset__num" style="background:${swatch}"></span>
+      </span>
+      <span class="video-preset__label">${preset.label}</span>
+    </button>
+  `;
+}
+
+function renderVideoPresets() {
+  if (ui.videoLookPresets) {
+    ui.videoLookPresets.innerHTML = VIDEO_LOOK_PRESETS.map((p) =>
+      presetButtonHtml(p, "look")
+    ).join("");
+  }
+  if (ui.videoGradientPresets) {
+    ui.videoGradientPresets.innerHTML = VIDEO_GRADIENT_PRESETS.map((p) =>
+      presetButtonHtml(p, "gradient")
+    ).join("");
+  }
+}
+
+function findMatchingPreset(style) {
+  const s = { ...DEFAULT_VIDEO_STYLE, ...style };
+  const looks = VIDEO_LOOK_PRESETS.find(
+    (p) =>
+      p.textMode === s.textMode &&
+      p.textColor.toLowerCase() === s.textColor.toLowerCase() &&
+      p.backgroundColor.toLowerCase() === s.backgroundColor.toLowerCase()
+  );
+  if (looks) return { kind: "look", id: looks.id };
+  const grads = VIDEO_GRADIENT_PRESETS.find(
+    (p) =>
+      p.textMode === s.textMode &&
+      p.textColor.toLowerCase() === s.textColor.toLowerCase() &&
+      p.textColorEnd.toLowerCase() === s.textColorEnd.toLowerCase() &&
+      p.backgroundColor.toLowerCase() === s.backgroundColor.toLowerCase()
+  );
+  if (grads) return { kind: "gradient", id: grads.id };
+  return null;
+}
+
+function syncVideoPresetSelection(style) {
+  const match = findMatchingPreset(style);
+  for (const btn of document.querySelectorAll(".video-preset")) {
+    const active =
+      match &&
+      btn.dataset.presetKind === match.kind &&
+      btn.dataset.presetId === match.id;
+    btn.classList.toggle("is-active", Boolean(active));
+  }
+}
+
+function applyVideoPreset(kind, id) {
+  const list = kind === "gradient" ? VIDEO_GRADIENT_PRESETS : VIDEO_LOOK_PRESETS;
+  const preset = list.find((item) => item.id === id);
+  if (!preset) return;
+  applyVideoStyleToForm({
+    ...readVideoStyleFromForm(),
+    ...preset,
+  });
+  updateVideoPreview();
 }
 
 function updateVideoPreview() {
@@ -1092,6 +1254,7 @@ async function openVideoEditor({ events, noteCount, durationMs, filenameBase }) 
   };
 
   applyVideoStyleToForm(videoEditor.style);
+  setVideoCustomizeOpen(false);
   setVideoRenderUi(false);
   if (ui.videoProgressBlock) ui.videoProgressBlock.hidden = true;
   if (ui.videoProgressFill) ui.videoProgressFill.style.width = "0%";
@@ -1138,6 +1301,10 @@ function setVideoRenderUi(rendering) {
   for (const swatch of document.querySelectorAll(".video-swatch")) {
     swatch.disabled = rendering;
   }
+  for (const preset of document.querySelectorAll(".video-preset")) {
+    preset.disabled = rendering;
+  }
+  if (ui.btnVideoCustomize) ui.btnVideoCustomize.disabled = rendering;
 }
 
 async function startVideoRender() {
@@ -1422,6 +1589,23 @@ function bindUi() {
     onVideoStyleChange();
   });
 
+  ui.btnVideoCustomize?.addEventListener("click", () => {
+    const open = ui.videoCustomizePanel?.hidden !== false;
+    setVideoCustomizeOpen(open);
+  });
+
+  renderVideoPresets();
+  ui.videoLookPresets?.addEventListener("click", (event) => {
+    const btn = event.target.closest(".video-preset");
+    if (!btn || videoEditor.rendering) return;
+    applyVideoPreset(btn.dataset.presetKind, btn.dataset.presetId);
+  });
+  ui.videoGradientPresets?.addEventListener("click", (event) => {
+    const btn = event.target.closest(".video-preset");
+    if (!btn || videoEditor.rendering) return;
+    applyVideoPreset(btn.dataset.presetKind, btn.dataset.presetId);
+  });
+
   for (const swatch of document.querySelectorAll(".video-swatch")) {
     swatch.addEventListener("click", () => {
       if (videoEditor.rendering) return;
@@ -1464,6 +1648,10 @@ function bindUi() {
     synth.setEnabled(ui.soundToggle.checked);
     localStorage.setItem(STORAGE.sound, ui.soundToggle.checked ? "on" : "off");
     if (ui.soundToggle.checked) synth.resume();
+  });
+
+  ui.pedalCountToggle?.addEventListener("change", () => {
+    setPedalCountMode(ui.pedalCountToggle.checked);
   });
 
   const onVoiceChange = (event) => {

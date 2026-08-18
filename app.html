@@ -76,20 +76,30 @@
         </nav>
 
         <div class="header__actions">
-          <button
-            class="icon-btn"
-            id="btnSettings"
-            type="button"
-            aria-label="Settings"
-            title="Settings"
-          >
-            <svg viewBox="0 0 24 24" aria-hidden="true">
-              <circle cx="12" cy="12" r="3" />
-              <path
-                d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.6 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.6a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9c.14.63.7 1.09 1.35 1.09H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"
-              />
-            </svg>
-          </button>
+          <div class="header__tool-stack">
+            <button
+              class="icon-btn"
+              id="btnSettings"
+              type="button"
+              aria-label="Settings"
+              title="Settings"
+            >
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <circle cx="12" cy="12" r="3" />
+                <path
+                  d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.6 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.6a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9c.14.63.7 1.09 1.35 1.09H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"
+                />
+              </svg>
+            </button>
+            <label
+              class="switch header__pedal-switch"
+              title="Pedal count — tally notes while the damper is held. Lift the pedal to reset."
+            >
+              <input type="checkbox" id="pedalCountToggle" />
+              <span class="switch__track"><span class="switch__thumb"></span></span>
+              <span class="switch__text">Pedal count</span>
+            </label>
+          </div>
           <button
             class="icon-btn"
             id="themeToggle"
@@ -152,7 +162,7 @@
         </div>
 
         <section class="hero-counter" aria-live="polite">
-          <div class="hero-counter__label">Notes Played</div>
+          <div class="hero-counter__label" id="heroCounterLabel">Notes Played</div>
           <div class="hero-counter__value" id="noteCount">0</div>
           <div class="hero-counter__foot">
             <p class="hero-counter__hint" id="heroHint">
@@ -742,7 +752,7 @@
       </div>
 
       <div class="focus__stage">
-        <div class="focus__label">Notes Played</div>
+        <div class="focus__label" id="focusLabel">Notes Played</div>
         <div class="focus__value" id="focusCount">0</div>
 
         <div class="focus__stats">
@@ -818,68 +828,90 @@
           </div>
 
           <div class="video-editor__controls">
-            <section class="setting">
-              <div class="setting__row">
-                <div>
-                  <div class="setting__title">Text style</div>
-                  <div class="setting__desc">Solid color or a two-stop gradient.</div>
+            <div class="video-editor__panel" id="videoCustomizePanel" hidden>
+              <section class="setting">
+                <div class="setting__head">
+                  <div>
+                    <div class="setting__title">Look presets</div>
+                    <div class="setting__desc">Background + number color pairs.</div>
+                  </div>
                 </div>
-                <div class="setting__control">
-                  <select id="videoTextMode" class="voice-select__control">
-                    <option value="gradient">Gradient</option>
-                    <option value="solid">Solid</option>
-                  </select>
-                </div>
-              </div>
+                <div class="video-editor__presets" id="videoLookPresets" role="list"></div>
+              </section>
 
-              <div class="setting__row">
-                <div>
-                  <div class="setting__title">Number color</div>
+              <section class="setting">
+                <div class="setting__head">
+                  <div>
+                    <div class="setting__title">Gradient presets</div>
+                    <div class="setting__desc">All on a black background.</div>
+                  </div>
                 </div>
-                <div class="setting__control">
-                  <input type="color" id="videoTextColor" value="#ffffff" />
-                </div>
-              </div>
+                <div class="video-editor__presets" id="videoGradientPresets" role="list"></div>
+              </section>
 
-              <div class="setting__row" id="videoGradientRow">
-                <div>
-                  <div class="setting__title">Gradient end</div>
+              <section class="setting">
+                <div class="setting__row">
+                  <div>
+                    <div class="setting__title">Text style</div>
+                    <div class="setting__desc">Solid color or a two-stop gradient.</div>
+                  </div>
+                  <div class="setting__control">
+                    <select id="videoTextMode" class="voice-select__control">
+                      <option value="solid">Solid</option>
+                      <option value="gradient">Gradient</option>
+                    </select>
+                  </div>
                 </div>
-                <div class="setting__control">
-                  <input type="color" id="videoTextColorEnd" value="#60a5fa" />
-                </div>
-              </div>
 
-              <div class="setting__row" id="videoAngleRow">
-                <div>
-                  <div class="setting__title">Gradient angle</div>
+                <div class="setting__row">
+                  <div>
+                    <div class="setting__title">Number color</div>
+                  </div>
+                  <div class="setting__control">
+                    <input type="color" id="videoTextColor" value="#5B9FD4" />
+                  </div>
                 </div>
-                <div class="setting__control">
-                  <input
-                    type="range"
-                    id="videoGradientAngle"
-                    min="0"
-                    max="360"
-                    value="175"
-                  />
-                  <span class="setting__value" id="videoGradientAngleValue">175°</span>
-                </div>
-              </div>
 
-              <div class="setting__row">
-                <div>
-                  <div class="setting__title">Background</div>
-                  <div class="setting__desc">Pick any color for the full frame.</div>
+                <div class="setting__row" id="videoGradientRow" hidden>
+                  <div>
+                    <div class="setting__title">Gradient end</div>
+                  </div>
+                  <div class="setting__control">
+                    <input type="color" id="videoTextColorEnd" value="#8eb4d8" />
+                  </div>
                 </div>
-                <div class="setting__control video-editor__swatches">
-                  <button type="button" class="video-swatch" data-bg="#050505" title="Black" style="--swatch:#050505"></button>
-                  <button type="button" class="video-swatch" data-bg="#0b1020" title="Navy" style="--swatch:#0b1020"></button>
-                  <button type="button" class="video-swatch" data-bg="#111827" title="Slate" style="--swatch:#111827"></button>
-                  <button type="button" class="video-swatch" data-bg="#ffffff" title="White" style="--swatch:#ffffff"></button>
-                  <input type="color" id="videoBgColor" value="#050505" />
+
+                <div class="setting__row" id="videoAngleRow" hidden>
+                  <div>
+                    <div class="setting__title">Gradient angle</div>
+                  </div>
+                  <div class="setting__control">
+                    <input
+                      type="range"
+                      id="videoGradientAngle"
+                      min="0"
+                      max="360"
+                      value="175"
+                    />
+                    <span class="setting__value" id="videoGradientAngleValue">175°</span>
+                  </div>
                 </div>
-              </div>
-            </section>
+
+                <div class="setting__row">
+                  <div>
+                    <div class="setting__title">Background</div>
+                    <div class="setting__desc">Full-frame color behind the counter.</div>
+                  </div>
+                  <div class="setting__control video-editor__swatches">
+                    <button type="button" class="video-swatch" data-bg="#000000" title="Black" style="--swatch:#000000"></button>
+                    <button type="button" class="video-swatch" data-bg="#0b1020" title="Navy" style="--swatch:#0b1020"></button>
+                    <button type="button" class="video-swatch" data-bg="#111827" title="Slate" style="--swatch:#111827"></button>
+                    <button type="button" class="video-swatch" data-bg="#ffffff" title="White" style="--swatch:#ffffff"></button>
+                    <input type="color" id="videoBgColor" value="#000000" />
+                  </div>
+                </div>
+              </section>
+            </div>
 
             <div class="video-editor__progress" id="videoProgressBlock" hidden>
               <div class="video-editor__progress-bar">
@@ -891,6 +923,15 @@
             </div>
 
             <div class="video-editor__actions">
+              <button
+                class="btn btn--ghost"
+                id="btnVideoCustomize"
+                type="button"
+                aria-expanded="false"
+                aria-controls="videoCustomizePanel"
+              >
+                Customization
+              </button>
               <button class="btn btn--primary" id="btnVideoRender" type="button">
                 Download MP4
               </button>
