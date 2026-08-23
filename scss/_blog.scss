@@ -311,6 +311,20 @@ html[data-theme="light"] .landing--interior .landing-nav.is-scrolled {
       margin-bottom: 0;
     }
 
+    h2 {
+      margin: 2.15rem 0 0.7rem;
+      font-family: "Cormorant Garamond", "Times New Roman", serif;
+      font-size: 1.55rem;
+      font-weight: 600;
+      letter-spacing: -0.02em;
+      line-height: 1.2;
+      color: var(--ink);
+    }
+
+    h2:first-child {
+      margin-top: 0.25rem;
+    }
+
     strong {
       color: var(--ink);
       font-weight: 600;
@@ -471,7 +485,8 @@ html[data-theme="light"] .landing--interior .landing-nav.is-scrolled {
 
 html[data-theme="light"] .blog-card__title,
 html[data-theme="light"] .blog-hero__title,
-html[data-theme="light"] .blog-post__title {
+html[data-theme="light"] .blog-post__title,
+html[data-theme="light"] .blog-post__body h2 {
   color: #10131a;
 }
 
