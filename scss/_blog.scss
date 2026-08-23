@@ -325,6 +325,44 @@ html[data-theme="light"] .landing--interior .landing-nav.is-scrolled {
       margin-top: 0.25rem;
     }
 
+    h3 {
+      margin: 1.45rem 0 0.55rem;
+      font-size: 0.78rem;
+      font-weight: 600;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--blue);
+    }
+
+    ul,
+    ol {
+      margin: 0 0 1.15rem;
+      padding-left: 1.3rem;
+    }
+
+    li {
+      margin: 0 0 0.5rem;
+    }
+
+    li:last-child {
+      margin-bottom: 0;
+    }
+
+    em {
+      font-style: italic;
+    }
+
+    a {
+      color: var(--blue);
+      font-weight: 600;
+      text-decoration: underline;
+      text-underline-offset: 0.18em;
+
+      &:hover {
+        color: var(--ink);
+      }
+    }
+
     strong {
       color: var(--ink);
       font-weight: 600;
@@ -488,6 +526,10 @@ html[data-theme="light"] .blog-hero__title,
 html[data-theme="light"] .blog-post__title,
 html[data-theme="light"] .blog-post__body h2 {
   color: #10131a;
+}
+
+html[data-theme="light"] .blog-post__body h3 {
+  color: #1d4ed8;
 }
 
 html[data-theme="light"] .blog-card__excerpt,

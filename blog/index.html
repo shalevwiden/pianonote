@@ -1,14 +1,19 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en" data-theme="light">
   <head>
     <!-- Google tag (gtag.js) -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-24448W7H6J"></script>
+    <script
+      async
+      src="https://www.googletagmanager.com/gtag/js?id=G-24448W7H6J"
+    ></script>
     <script>
       window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
+      function gtag() {
+        dataLayer.push(arguments);
+      }
+      gtag("js", new Date());
 
-      gtag('config', 'G-24448W7H6J');
+      gtag("config", "G-24448W7H6J");
     </script>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -30,9 +35,7 @@
   <body class="landing landing--interior">
     <div class="landing__noise" aria-hidden="true"></div>
 
-    <div class="landing-banner" role="note">
-      Built by pianists for pianists
-    </div>
+    <div class="landing-banner" role="note">Built by pianists for pianists</div>
 
     <header class="landing-nav is-scrolled">
       <a class="landing-nav__brand" href="../index.html">
@@ -52,42 +55,52 @@
         <span class="landing-nav__name">Peak Notes</span>
       </a>
       <div class="landing-nav__actions">
-        <a class="landing-nav__cta landing-nav__cta--app" href="../app.html">Open app</a>
+        <a class="landing-nav__cta landing-nav__cta--app" href="../app.html"
+          >Open app</a
+        >
         <button
           class="landing-theme"
-        id="landingThemeToggle"
-        type="button"
-        aria-label="Toggle light and dark mode"
-        title="Toggle theme"
-      >
-        <svg class="landing-theme__moon" viewBox="0 0 24 24" aria-hidden="true">
-          <path
-            d="M21 14.5A8.5 8.5 0 1 1 9.5 3 7 7 0 0 0 21 14.5z"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="1.7"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-          />
-        </svg>
-        <svg class="landing-theme__sun" viewBox="0 0 24 24" aria-hidden="true">
-          <circle
-            cx="12"
-            cy="12"
-            r="4"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="1.7"
-          />
-          <path
-            d="M12 2v2.2M12 19.8V22M2 12h2.2M19.8 12H22M4.9 4.9l1.6 1.6M17.5 17.5l1.6 1.6M19.1 4.9l-1.6 1.6M6.5 17.5l-1.6 1.6"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="1.7"
-            stroke-linecap="round"
-          />
-        </svg>
-      </button>
+          id="landingThemeToggle"
+          type="button"
+          aria-label="Toggle light and dark mode"
+          title="Toggle theme"
+        >
+          <svg
+            class="landing-theme__moon"
+            viewBox="0 0 24 24"
+            aria-hidden="true"
+          >
+            <path
+              d="M21 14.5A8.5 8.5 0 1 1 9.5 3 7 7 0 0 0 21 14.5z"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.7"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+          </svg>
+          <svg
+            class="landing-theme__sun"
+            viewBox="0 0 24 24"
+            aria-hidden="true"
+          >
+            <circle
+              cx="12"
+              cy="12"
+              r="4"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.7"
+            />
+            <path
+              d="M12 2v2.2M12 19.8V22M2 12h2.2M19.8 12H22M4.9 4.9l1.6 1.6M17.5 17.5l1.6 1.6M19.1 4.9l-1.6 1.6M6.5 17.5l-1.6 1.6"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.7"
+              stroke-linecap="round"
+            />
+          </svg>
+        </button>
       </div>
     </header>
 
@@ -97,8 +110,8 @@
           <div>
             <h1 class="blog-hero__title">Notes from the <em>bench</em></h1>
             <p class="blog-hero__lead">
-              Short reads on practice habits, piano history, and why counting every
-              note can change how you show up to the instrument.
+              Short reads on practice habits, piano history, and why counting
+              every note can change how you show up to the instrument.
             </p>
           </div>
           <button
@@ -115,51 +128,10 @@
       </header>
 
       <div class="blog-grid" id="blogGrid">
-        <a class="blog-card reveal reveal--up" href="peak-notes-updates.html">
-          <div class="blog-card__media">
-            <img
-              src="../assets/pianohero-1.png"
-              alt="A grand piano under a single light, sheet music on the stand"
-              loading="lazy"
-            />
-          </div>
-          <div class="blog-card__body">
-            <div class="blog-card__meta">
-              <span>Peak Notes</span>
-              <span>Aug 23, 2026</span>
-            </div>
-            <h2 class="blog-card__title">What’s new in Peak Notes</h2>
-            <p class="blog-card__excerpt">
-              From the first note counter on July 23 to new blog covers today —
-              every update so far, and more on the way.
-            </p>
-            <span class="blog-card__more">Read →</span>
-          </div>
-        </a>
-
-        <a class="blog-card reveal reveal--up" href="good-piano-habits.html" style="--reveal-delay: 0.08s">
-          <div class="blog-card__media">
-            <img
-              src="thumbnails/habits1.jpg"
-              alt="Felt hammers and strings inside a piano"
-              loading="lazy"
-            />
-          </div>
-          <div class="blog-card__body">
-            <div class="blog-card__meta">
-              <span>Peak Notes</span>
-              <span>Aug 1, 2026</span>
-            </div>
-            <h2 class="blog-card__title">Good piano habits worth learning early</h2>
-            <p class="blog-card__excerpt">
-              Small rituals at the bench compound faster than heroic weekend
-              sessions. Start here.
-            </p>
-            <span class="blog-card__more">Read →</span>
-          </div>
-        </a>
-
-        <a class="blog-card reveal reveal--up" href="practice-with-peak-notes.html" style="--reveal-delay: 0.12s">
+        <a
+          class="blog-card reveal reveal--up"
+          href="practice-with-peak-notes.html"
+        >
           <div class="blog-card__media">
             <img
               src="thumbnails/film-piano.jpeg"
@@ -172,16 +144,78 @@
               <span>Peak Notes</span>
               <span>Aug 2, 2026</span>
             </div>
-            <h2 class="blog-card__title">Make piano fun again — and film the takes that matter</h2>
+            <h2 class="blog-card__title">
+              Make piano fun - and record the takes that matter
+            </h2>
             <p class="blog-card__excerpt">
-              Motivation as a game score, plus tools piano YouTubers and creators
-              can put on camera.
+              Motivation as a game score, plus tools piano YouTubers and
+              creators can put on camera.
             </p>
             <span class="blog-card__more">Read →</span>
           </div>
         </a>
 
-        <a class="blog-card reveal reveal--up" href="piano-history.html" style="--reveal-delay: 0.16s">
+        <a
+          class="blog-card reveal reveal--up"
+          href="film-the-takes.html"
+          style="--reveal-delay: 0.08s"
+        >
+          <div class="blog-card__media">
+            <img
+              src="thumbnails/cloudscape.png"
+              alt="Cloudscape Piano mark — a grand piano over sunset clouds"
+              loading="lazy"
+            />
+          </div>
+          <div class="blog-card__body">
+            <div class="blog-card__meta">
+              <span>Cloudscape Piano</span>
+              <span>Aug 23, 2026</span>
+            </div>
+            <h2 class="blog-card__title">
+              How I use Peak Notes to make piano videos for YouTube
+            </h2>
+            <p class="blog-card__excerpt">
+              Playing the number of notes equal to my subscriber count — and the
+              slightly chaotic path from idea to upload.
+            </p>
+            <span class="blog-card__more">Read →</span>
+          </div>
+        </a>
+
+        <a
+          class="blog-card reveal reveal--up"
+          href="good-piano-habits.html"
+          style="--reveal-delay: 0.12s"
+        >
+          <div class="blog-card__media">
+            <img
+              src="thumbnails/habits1.jpg"
+              alt="Felt hammers and strings inside a piano"
+              loading="lazy"
+            />
+          </div>
+          <div class="blog-card__body">
+            <div class="blog-card__meta">
+              <span>Peak Notes</span>
+              <span>Aug 1, 2026</span>
+            </div>
+            <h2 class="blog-card__title">
+              Good piano habits worth learning early
+            </h2>
+            <p class="blog-card__excerpt">
+              Small rituals at the bench compound faster than heroic weekend
+              sessions. Start here.
+            </p>
+            <span class="blog-card__more">Read →</span>
+          </div>
+        </a>
+
+        <a
+          class="blog-card reveal reveal--up"
+          href="piano-history.html"
+          style="--reveal-delay: 0.16s"
+        >
           <div class="blog-card__media">
             <img
               src="thumbnails/pianohistory1.jpg"
@@ -203,7 +237,11 @@
           </div>
         </a>
 
-        <a class="blog-card reveal reveal--up" href="chopin.html" style="--reveal-delay: 0.20s">
+        <a
+          class="blog-card reveal reveal--up"
+          href="chopin.html"
+          style="--reveal-delay: 0.2s"
+        >
           <div class="blog-card__media">
             <img
               src="thumbnails/chopin.webp"
@@ -216,10 +254,38 @@
               <span>Peak Notes</span>
               <span>Aug 4, 2026</span>
             </div>
-            <h2 class="blog-card__title">Chopin in the salon — and the quiet kind of fame</h2>
+            <h2 class="blog-card__title">
+              Chopin in the salon — and the quiet kind of fame
+            </h2>
             <p class="blog-card__excerpt">
-              Exile, intimate rooms, and a touch that changed piano music without
-              needing the biggest stage.
+              Exile, intimate rooms, and a touch that changed piano music
+              without needing the biggest stage.
+            </p>
+            <span class="blog-card__more">Read →</span>
+          </div>
+        </a>
+
+        <a
+          class="blog-card reveal reveal--up"
+          href="peak-notes-updates.html"
+          style="--reveal-delay: 0.24s"
+        >
+          <div class="blog-card__media">
+            <img
+              src="../assets/pianohero-1.png"
+              alt="A grand piano under a single light, sheet music on the stand"
+              loading="lazy"
+            />
+          </div>
+          <div class="blog-card__body">
+            <div class="blog-card__meta">
+              <span>Peak Notes</span>
+              <span>Aug 23, 2026</span>
+            </div>
+            <h2 class="blog-card__title">What’s new in Peak Notes</h2>
+            <p class="blog-card__excerpt">
+              From the first note counter on July 23 to new blog covers today —
+              every update so far, and more on the way.
             </p>
             <span class="blog-card__more">Read →</span>
           </div>
@@ -292,17 +358,26 @@
         </div>
 
         <p class="landing-footer__copy">
-          © <span id="year"></span> Peak Notes. Crafted for pianists who keep score.
-          All practice data stays on your device.
+          © <span id="year"></span> Peak Notes. Crafted for pianists who keep
+          score. All practice data stays on your device.
         </p>
       </div>
     </footer>
 
-    <dialog class="blog-dialog" id="blogDialog" aria-labelledby="blogDialogTitle">
+    <dialog
+      class="blog-dialog"
+      id="blogDialog"
+      aria-labelledby="blogDialogTitle"
+    >
       <form class="blog-dialog__form" id="blogForm" method="dialog">
         <header class="blog-dialog__head">
           <h2 class="blog-dialog__title" id="blogDialogTitle">New blog post</h2>
-          <button class="blog-dialog__close" type="button" id="blogDialogClose" aria-label="Close">
+          <button
+            class="blog-dialog__close"
+            type="button"
+            id="blogDialogClose"
+            aria-label="Close"
+          >
             ×
           </button>
         </header>
@@ -310,12 +385,24 @@
         <div class="blog-dialog__body">
           <label class="blog-field">
             <span>Title</span>
-            <input id="blogTitle" name="title" type="text" maxlength="120" placeholder="Give the post a name" />
+            <input
+              id="blogTitle"
+              name="title"
+              type="text"
+              maxlength="120"
+              placeholder="Give the post a name"
+            />
           </label>
 
           <label class="blog-field">
             <span>Author</span>
-            <input id="blogAuthor" name="author" type="text" maxlength="80" value="Peak Notes" />
+            <input
+              id="blogAuthor"
+              name="author"
+              type="text"
+              maxlength="80"
+              value="Peak Notes"
+            />
           </label>
 
           <label class="blog-field">
@@ -345,10 +432,19 @@
         </div>
 
         <footer class="blog-dialog__actions">
-          <button class="landing-btn landing-btn--ghost" type="button" id="blogDialogCancel">
+          <button
+            class="landing-btn landing-btn--ghost"
+            type="button"
+            id="blogDialogCancel"
+          >
             Cancel
           </button>
-          <button class="landing-btn landing-btn--primary" id="blogPublish" type="submit" value="publish">
+          <button
+            class="landing-btn landing-btn--primary"
+            id="blogPublish"
+            type="submit"
+            value="publish"
+          >
             Publish
           </button>
         </footer>
