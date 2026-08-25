@@ -68,8 +68,16 @@ body {
   align-items: center;
   justify-content: space-between;
   gap: 1.5rem;
-  padding: 1.4rem 2.5rem;
+  padding: 0.55rem 1.5rem;
   animation: fade-up 0.7s $ease-out both;
+
+  &__start {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    min-width: 0;
+    flex: 1;
+  }
 
   &__brand {
     display: flex;
@@ -126,9 +134,11 @@ body {
 
   &__actions {
     display: flex;
-    flex-direction: column;
-    align-items: flex-end;
-    gap: 0.45rem;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 0.55rem;
+    flex: 1;
   }
 
   &__tool-row {
@@ -137,32 +147,18 @@ body {
     gap: 0.55rem;
   }
 
-  // Same proportions as .switch (42×24 ≈ 1.75:1), scaled a bit larger.
   &__pedal-switch {
-    flex-direction: column;
-    gap: 0.28rem;
-    width: 88px;
-
-    .switch__track {
-      width: 100%;
-      height: 38px;
-    }
-
-    .switch__thumb {
-      top: 4px;
-      left: 4px;
-      width: 28px;
-      height: 28px;
-    }
+    gap: 0.4rem;
+    padding-left: 0.15rem;
 
     .switch__text {
-      font-size: 0.62rem;
+      font-size: 0.68rem;
       font-weight: 600;
       letter-spacing: 0.04em;
       text-transform: uppercase;
-      text-align: center;
       color: var(--text-muted);
       line-height: 1.2;
+      max-width: 4.6rem;
     }
 
     input:checked + .switch__track {
@@ -170,7 +166,6 @@ body {
       border-color: var(--danger);
 
       .switch__thumb {
-        transform: translateX(50px);
         background: var(--danger);
         box-shadow: 0 0 0 3px var(--danger-soft);
       }
@@ -192,6 +187,7 @@ body {
     box-shadow: var(--shadow);
     flex-wrap: wrap;
     justify-content: center;
+    flex-shrink: 0;
 
     &__item {
       padding: 0.5rem 0.95rem;
@@ -200,6 +196,7 @@ body {
       font-weight: 500;
       color: var(--text-secondary);
       transition: color 0.2s $ease-out, background 0.25s $ease-out;
+      white-space: nowrap;
 
       &:hover {
         color: var(--text);
@@ -209,6 +206,32 @@ body {
         color: #fff;
         background: linear-gradient(140deg, var(--accent-strong), var(--accent));
         box-shadow: 0 4px 14px var(--accent-glow);
+      }
+    }
+
+    &--mode {
+      flex-shrink: 0;
+
+      .nav__item {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.42rem;
+        padding: 0.46rem 0.85rem;
+
+        svg {
+          width: 15px;
+          height: 15px;
+          stroke: currentColor;
+          fill: none;
+          stroke-width: 1.7;
+          stroke-linecap: round;
+          stroke-linejoin: round;
+        }
+
+        circle {
+          fill: currentColor;
+          stroke: none;
+        }
       }
     }
   }
@@ -244,6 +267,15 @@ body {
     stroke-linejoin: round;
   }
 
+  &--fill {
+    color: var(--text);
+
+    svg {
+      fill: currentColor;
+      stroke: none;
+    }
+  }
+
   .icon-sun {
     display: none;
   }
@@ -268,13 +300,14 @@ body {
   justify-content: center;
   gap: 2.25rem;
   width: 100%;
-  max-width: 1320px;
+  max-width: 1500px;
   margin: 0 auto;
-  padding: 0.5rem 2.5rem 2.5rem;
+  padding: 0.35rem 1.25rem 2rem;
 
   &--doc {
     justify-content: flex-start;
-    padding-top: 1.5rem;
+    max-width: 1320px;
+    padding: 1.5rem 2.5rem 2.5rem;
   }
 }
 
@@ -446,7 +479,7 @@ body {
 @media (max-width: 860px) {
   .header {
     flex-wrap: wrap;
-    padding: 1.1rem 1.25rem;
+    padding: 0.55rem 1rem;
   }
 
   .nav {

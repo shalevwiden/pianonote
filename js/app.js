@@ -32,6 +32,8 @@ import {
   downloadBlob,
   isVideoExportSupported,
 } from "./video-export.js";
+import { parseMidiFile, notesFromEvents } from "./midi-parser.js";
+import { MidiVisualizer, VIZ_THEMES, DEFAULT_VIZ_THEME } from "./visualizer.js";
 
 const $ = (id) => document.getElementById(id);
 
@@ -45,6 +47,9 @@ const STORAGE = {
   voice: "psr-voice",
   videoStyle: "psr-video-style-v2",
   videoStartAtFirstNote: "psr-video-start-at-first-note",
+  vizColor: "psr-viz-color",
+  vizLook: "psr-viz-look-v1",
+  vizBgImage: "psr-viz-bg-image",
   pedalCount: "psr-pedal-count",
 };
 
@@ -53,7 +58,9 @@ const ui = {
   settingsBtn: $("btnSettings"),
   pedalCountToggle: $("pedalCountToggle"),
   navItems: document.querySelectorAll(".nav__item"),
+  modeItems: document.querySelectorAll("[data-mode]"),
   viewDashboard: $("viewDashboard"),
+  viewVisualizer: $("viewVisualizer"),
   viewHistory: $("viewHistory"),
   viewStats: $("viewStats"),
   viewAbout: $("viewAbout"),
@@ -71,6 +78,8 @@ const ui = {
   statPeakNps: $("statPeakNps"),
   statElapsed: $("statElapsed"),
   btnRecord: $("btnRecord"),
+  btnVisualize: $("btnVisualize"),
+  recordStack: $("recordStack"),
   btnPause: $("btnPause"),
   btnResume: $("btnResume"),
   btnStop: $("btnStop"),
@@ -126,6 +135,7 @@ const ui = {
   btnDetailSaveMeta: $("btnDetailSaveMeta"),
   btnDetailExport: $("btnDetailExport"),
   btnDetailVideo: $("btnDetailVideo"),
+  btnDetailVisualize: $("btnDetailVisualize"),
   btnDetailDelete: $("btnDetailDelete"),
   btnClearHistory: $("btnClearHistory"),
   statsSinceValue: $("statsSinceValue"),
@@ -163,6 +173,23 @@ const ui = {
   btnVideoCancel: $("btnVideoCancel"),
   videoCompat: $("videoCompat"),
   videoStartAtFirstNote: $("videoStartAtFirstNote"),
+  vizEmpty: $("vizEmpty"),
+  vizStage: $("vizStage"),
+  vizCanvas: $("vizCanvas"),
+  vizDrop: $("vizDrop"),
+  vizFile: $("vizFile"),
+  vizTakes: $("vizTakes"),
+  vizTitle: $("vizTitle"),
+  vizThemes: $("vizThemes"),
+  vizColor: $("vizColor"),
+  vizBgColor: $("vizBgColor"),
+  vizBgImage: $("vizBgImage"),
+  btnVizBgClear: $("btnVizBgClear"),
+  vizSeek: $("vizSeek"),
+  vizTime: $("vizTime"),
+  btnVizPlay: $("btnVizPlay"),
+  btnVizRestart: $("btnVizRestart"),
+  btnVizLoad: $("btnVizLoad"),
 };
 
 const midi = new MidiManager();
@@ -215,6 +242,60 @@ const keyboard = new ComputerKeyboard({
   },
 });
 
+let currentView = "dashboard";
+let appMode = "studio";
+let vizSeeking = false;
+let vizHasPiece = false;
+let vizPlayIconPlaying = null;
+
+function defaultVizTheme() {
+  const appTheme =
+    localStorage.getItem(STORAGE.theme) ||
+    document.documentElement.getAttribute("data-theme") ||
+    "light";
+  return (
+    VIZ_THEMES.find((theme) => theme.id === (appTheme === "light" ? "light" : "dark")) ||
+    DEFAULT_VIZ_THEME
+  );
+}
+
+function loadVizLook() {
+  try {
+    const raw = localStorage.getItem(STORAGE.vizLook);
+    if (!raw) return { ...defaultVizTheme() };
+    const parsed = JSON.parse(raw);
+    const theme = VIZ_THEMES.find((item) => item.id === parsed.themeId) || defaultVizTheme();
+    return {
+      ...theme,
+      note: parsed.note || theme.note,
+      bg: parsed.bg || theme.bg,
+    };
+  } catch {
+    return { ...defaultVizTheme() };
+  }
+}
+
+const vizLookBoot = loadVizLook();
+const visualizer = ui.vizCanvas
+  ? new MidiVisualizer(ui.vizCanvas, {
+      theme: vizLookBoot,
+      color: vizLookBoot.note,
+      bgColor: vizLookBoot.bg,
+      onTime: (playhead, duration) => {
+        if (vizSeeking) return;
+        if (ui.vizSeek && duration > 0) {
+          ui.vizSeek.value = String(Math.round((playhead / duration) * 1000));
+        }
+        if (ui.vizTime) {
+          ui.vizTime.textContent = `${formatVizClock(playhead)} / ${formatVizClock(duration)}`;
+        }
+      },
+      onNoteOn: (note, velocity) => synth.noteOn(note, velocity),
+      onNoteOff: (note) => synth.noteOff(note),
+      onEnded: () => syncVizPlayButton(),
+    })
+  : null;
+
 /* ---------------------------------------------------------------- formatting */
 
 const formatCount = (n) => n.toLocaleString("en-US");
@@ -235,6 +316,13 @@ function formatClock(ms) {
   if (hours > 0) {
     return `${hours}:${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}`;
   }
+  return `${minutes}:${String(seconds).padStart(2, "0")}`;
+}
+
+function formatVizClock(ms) {
+  const totalSeconds = Math.max(0, Math.floor(ms / 1000));
+  const minutes = Math.floor(totalSeconds / 60);
+  const seconds = totalSeconds % 60;
   return `${minutes}:${String(seconds).padStart(2, "0")}`;
 }
 
@@ -465,6 +553,8 @@ function updateControls() {
   const canPersist = session.hasData && !active;
 
   ui.btnRecord.hidden = active;
+  if (ui.recordStack) ui.recordStack.hidden = active;
+  if (ui.btnVisualize) ui.btnVisualize.hidden = !canPersist;
   ui.btnPause.hidden = !recording;
   ui.btnResume.hidden = !paused;
   ui.btnStop.hidden = !active;
@@ -878,12 +968,34 @@ function initTheme() {
 }
 
 function setView(view) {
+  currentView = view;
+  if (view === "dashboard") appMode = "studio";
+  if (view === "visualizer") appMode = "visualize";
+
   ui.viewDashboard.hidden = view !== "dashboard";
+  if (ui.viewVisualizer) ui.viewVisualizer.hidden = view !== "visualizer";
   ui.viewHistory.hidden = view !== "history";
   ui.viewStats.hidden = view !== "stats";
   ui.viewAbout.hidden = view !== "about";
+  document.body.classList.toggle("is-viz", view === "visualizer");
+
   for (const item of ui.navItems) {
     item.classList.toggle("is-active", item.dataset.view === view);
+  }
+  for (const item of ui.modeItems) {
+    item.classList.toggle("is-active", item.dataset.mode === appMode);
+  }
+
+  if (view === "visualizer") {
+    keyboard.setEnabled(false);
+    renderVizTakes();
+    visualizer?.show();
+    if (vizHasPiece) showVizStage(true);
+    syncVizPlayButton();
+  } else {
+    visualizer?.pause();
+    visualizer?.hide();
+    if (view === "dashboard") updateSourceUi();
   }
 
   if (view === "history") renderHistory();
@@ -893,6 +1005,237 @@ function setView(view) {
   } else {
     stopStatsClock();
   }
+}
+
+function setAppMode(mode) {
+  if (mode === "visualize") setView("visualizer");
+  else setView("dashboard");
+}
+
+function showVizStage(loaded) {
+  vizHasPiece = loaded;
+  if (ui.vizEmpty) ui.vizEmpty.hidden = loaded;
+  if (ui.vizStage) ui.vizStage.hidden = !loaded;
+}
+
+function syncVizPlayButton() {
+  if (!ui.btnVizPlay || !visualizer) return;
+  const playing = visualizer.playing;
+  if (playing === vizPlayIconPlaying) return;
+  vizPlayIconPlaying = playing;
+  ui.btnVizPlay.setAttribute("aria-label", playing ? "Pause" : "Play");
+  ui.btnVizPlay.title = playing ? "Pause (Space)" : "Play (Space)";
+  ui.btnVizPlay.innerHTML = playing
+    ? `<svg viewBox="0 0 24 24" aria-hidden="true">
+        <rect x="5.5" y="5" width="4.8" height="14" rx="1.2" fill="currentColor" />
+        <rect x="13.7" y="5" width="4.8" height="14" rx="1.2" fill="currentColor" />
+      </svg>`
+    : `<svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M8 5.2v13.6L19.2 12 8 5.2z" fill="currentColor" />
+      </svg>`;
+}
+
+function loadVisualizerPiece({ notes, durationMs, title }) {
+  if (!visualizer) return;
+  if (!notes?.length) {
+    showToast("No notes to visualize");
+    return;
+  }
+  synth.resume();
+  showVizStage(true);
+  if (ui.vizTitle) ui.vizTitle.textContent = title || "Untitled";
+  setView("visualizer");
+  requestAnimationFrame(() => {
+    visualizer.setNotes(notes, durationMs);
+    visualizer.seek(0);
+    visualizer.play();
+    syncVizPlayButton();
+  });
+}
+
+function visualizeCurrentSession() {
+  if (!session.hasData || session.active) {
+    showToast("Stop the take before visualizing");
+    return;
+  }
+  const parsed = notesFromEvents(session.events);
+  loadVisualizerPiece({
+    notes: parsed.notes,
+    durationMs: Math.max(parsed.durationMs, session.getElapsedMs()),
+    title: "This take",
+  });
+}
+
+function visualizeHistorySession(id) {
+  const record = getSession(id);
+  if (!record?.events?.length) {
+    showToast("This session has no MIDI to visualize");
+    return;
+  }
+  const parsed = notesFromEvents(expandEvents(record.events));
+  loadVisualizerPiece({
+    notes: parsed.notes,
+    durationMs: Math.max(parsed.durationMs, record.durationMs ?? 0),
+    title: sessionDisplayName(record),
+  });
+}
+
+async function visualizeMidiFile(file) {
+  if (!file) return;
+  try {
+    const buffer = await file.arrayBuffer();
+    const parsed = parseMidiFile(new Uint8Array(buffer));
+    loadVisualizerPiece({
+      notes: parsed.notes,
+      durationMs: parsed.durationMs,
+      title: parsed.title || file.name.replace(/\.(mid|midi)$/i, ""),
+    });
+  } catch (error) {
+    console.error(error);
+    showToast(error?.message || "Could not read that MIDI file");
+  }
+}
+
+function renderVizTakes() {
+  if (!ui.vizTakes) return;
+  const sessions = listSessions().filter((record) => record.events?.length);
+  ui.vizTakes.innerHTML = "";
+  if (!sessions.length) {
+    const empty = document.createElement("div");
+    empty.className = "viz__takes-empty";
+    empty.textContent = "No saved takes yet. Record in Studio, then Save.";
+    ui.vizTakes.appendChild(empty);
+    return;
+  }
+  for (const record of sessions.slice(0, 12)) {
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "viz__take";
+    btn.textContent = `${sessionDisplayName(record)} · ${formatCount(record.noteCount)} notes`;
+    btn.addEventListener("click", () => visualizeHistorySession(record.id));
+    ui.vizTakes.appendChild(btn);
+  }
+}
+
+function persistVizLook() {
+  if (!visualizer) return;
+  localStorage.setItem(
+    STORAGE.vizLook,
+    JSON.stringify({
+      themeId: visualizer.themeId || DEFAULT_VIZ_THEME.id,
+      note: visualizer.color,
+      bg: visualizer.bgColor,
+    })
+  );
+}
+
+function syncVizLookUi() {
+  if (!visualizer) return;
+  if (ui.vizColor) ui.vizColor.value = visualizer.color;
+  if (ui.vizBgColor) ui.vizBgColor.value = visualizer.bgColor || DEFAULT_VIZ_THEME.bg;
+  if (ui.btnVizBgClear) ui.btnVizBgClear.hidden = !visualizer.bgImage;
+  for (const btn of document.querySelectorAll(".viz__theme")) {
+    btn.classList.toggle("is-active", btn.dataset.themeId === visualizer.themeId);
+  }
+}
+
+function renderVizThemes() {
+  if (!ui.vizThemes) return;
+  ui.vizThemes.innerHTML = VIZ_THEMES.map(
+    (theme) => `
+      <button
+        type="button"
+        class="viz__theme${theme.id === (visualizer?.themeId || DEFAULT_VIZ_THEME.id) ? " is-active" : ""}"
+        data-theme-id="${theme.id}"
+        title="${theme.label}"
+        aria-label="${theme.label} theme"
+        style="background:${theme.note}"
+      ></button>`
+  ).join("");
+}
+
+function applyVizTheme(id) {
+  const theme = VIZ_THEMES.find((item) => item.id === id);
+  if (!theme || !visualizer) return;
+  visualizer.applyTheme(theme);
+  persistVizLook();
+  syncVizLookUi();
+}
+
+function fileToVizBackground(file) {
+  return new Promise((resolve, reject) => {
+    if (!file || !file.type.startsWith("image/")) {
+      reject(new Error("Please choose an image file."));
+      return;
+    }
+    const reader = new FileReader();
+    reader.onerror = () => reject(new Error("Could not read that image."));
+    reader.onload = () => {
+      const img = new Image();
+      img.onerror = () => reject(new Error("Could not decode that image."));
+      img.onload = () => {
+        const maxEdge = 1600;
+        const scale = Math.min(1, maxEdge / Math.max(img.width, img.height));
+        const canvas = document.createElement("canvas");
+        canvas.width = Math.max(1, Math.round(img.width * scale));
+        canvas.height = Math.max(1, Math.round(img.height * scale));
+        const ctx = canvas.getContext("2d");
+        if (!ctx) {
+          reject(new Error("Canvas unavailable."));
+          return;
+        }
+        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+        const dataUrl = canvas.toDataURL("image/jpeg", 0.72);
+        const ready = new Image();
+        ready.onload = () => resolve({ image: ready, dataUrl });
+        ready.onerror = () => reject(new Error("Could not prepare that image."));
+        ready.src = dataUrl;
+      };
+      img.src = String(reader.result);
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
+function setVizBackgroundImage(image, dataUrl) {
+  if (!visualizer) return;
+  visualizer.setBackgroundImage(image);
+  if (dataUrl) {
+    try {
+      localStorage.setItem(STORAGE.vizBgImage, dataUrl);
+    } catch {
+      // Image is still used for this session if storage is full.
+    }
+  }
+  syncVizLookUi();
+}
+
+function clearVizBackground() {
+  if (!visualizer) return;
+  visualizer.setBackgroundImage(null);
+  localStorage.removeItem(STORAGE.vizBgImage);
+  if (ui.vizBgImage) ui.vizBgImage.value = "";
+  syncVizLookUi();
+}
+
+function restoreVizBackground() {
+  const dataUrl = localStorage.getItem(STORAGE.vizBgImage);
+  if (!dataUrl || !visualizer) return;
+  const img = new Image();
+  img.onload = () => {
+    visualizer.setBackgroundImage(img);
+    syncVizLookUi();
+  };
+  img.src = dataUrl;
+}
+
+function unloadVisualizerPiece() {
+  visualizer?.pause();
+  visualizer?.setNotes([], 0);
+  vizPlayIconPlaying = null;
+  showVizStage(false);
+  renderVizTakes();
+  syncVizPlayButton();
 }
 
 /* ----------------------------------------------------------- history / stats */
@@ -1026,6 +1369,10 @@ function showHistoryDetail(record) {
   if (ui.btnDetailVideo) {
     ui.btnDetailVideo.disabled = !hasEvents;
     ui.btnDetailVideo.dataset.sessionId = record.id;
+  }
+  if (ui.btnDetailVisualize) {
+    ui.btnDetailVisualize.disabled = !hasEvents;
+    ui.btnDetailVisualize.dataset.sessionId = record.id;
   }
   ui.btnDetailDelete.dataset.sessionId = record.id;
 }
@@ -1507,6 +1854,9 @@ function bindUi() {
   for (const item of ui.navItems) {
     item.addEventListener("click", () => setView(item.dataset.view));
   }
+  for (const item of ui.modeItems) {
+    item.addEventListener("click", () => setAppMode(item.dataset.mode));
+  }
 
   for (const button of ui.sourceButtons) {
     button.addEventListener("click", () =>
@@ -1532,6 +1882,7 @@ function bindUi() {
   ui.btnFocusStop?.addEventListener("click", stopRecording);
   ui.btnExport.addEventListener("click", exportMidi);
   ui.btnSaveVideo?.addEventListener("click", openCurrentSessionVideo);
+  ui.btnVisualize?.addEventListener("click", visualizeCurrentSession);
   ui.btnSave?.addEventListener("click", saveCurrentSession);
   ui.btnReset.addEventListener("click", resetSession);
 
@@ -1577,6 +1928,9 @@ function bindUi() {
 
   ui.btnDetailVideo?.addEventListener("click", () => {
     openHistorySessionVideo(ui.btnDetailVideo.dataset.sessionId);
+  });
+  ui.btnDetailVisualize?.addEventListener("click", () => {
+    visualizeHistorySession(ui.btnDetailVisualize.dataset.sessionId);
   });
 
   ui.btnDetailDelete?.addEventListener("click", () => {
@@ -1657,7 +2011,7 @@ function bindUi() {
   });
   ui.videoModal?.addEventListener("close", () => {
     videoEditor.cancelRequested = videoEditor.rendering;
-    updateSourceUi();
+    if (currentView !== "visualizer") updateSourceUi();
   });
 
   ui.btnOctaveDown.addEventListener("click", () => keyboard.shiftOctave(-1));
@@ -1688,7 +2042,7 @@ function bindUi() {
 
   ui.settingsModal.addEventListener("close", () => {
     keyboard.cancelCapture();
-    updateSourceUi();
+    if (currentView !== "visualizer") updateSourceUi();
   });
 
   ui.velocityRange.addEventListener("input", () => {
@@ -1710,12 +2064,92 @@ function bindUi() {
     refreshKeyLabels();
   });
 
+  ui.vizFile?.addEventListener("change", () => {
+    const file = ui.vizFile.files?.[0];
+    ui.vizFile.value = "";
+    visualizeMidiFile(file);
+  });
+  ui.vizThemes?.addEventListener("click", (event) => {
+    const btn = event.target.closest(".viz__theme");
+    if (!btn) return;
+    applyVizTheme(btn.dataset.themeId);
+  });
+  ui.vizColor?.addEventListener("input", () => {
+    visualizer?.setColor(ui.vizColor.value);
+    persistVizLook();
+  });
+  ui.vizBgColor?.addEventListener("input", () => {
+    visualizer?.setBackgroundColor(ui.vizBgColor.value);
+    persistVizLook();
+  });
+  ui.vizBgImage?.addEventListener("change", async () => {
+    const file = ui.vizBgImage.files?.[0];
+    ui.vizBgImage.value = "";
+    if (!file) return;
+    try {
+      const { image, dataUrl } = await fileToVizBackground(file);
+      setVizBackgroundImage(image, dataUrl);
+    } catch (error) {
+      showToast(error?.message || "Could not use that image");
+    }
+  });
+  ui.btnVizBgClear?.addEventListener("click", () => clearVizBackground());
+  ui.btnVizPlay?.addEventListener("click", () => {
+    synth.resume();
+    visualizer?.toggle();
+    syncVizPlayButton();
+  });
+  ui.btnVizRestart?.addEventListener("click", () => {
+    visualizer?.seek(0);
+    visualizer?.play();
+    syncVizPlayButton();
+  });
+  ui.btnVizLoad?.addEventListener("click", () => unloadVisualizerPiece());
+  ui.vizSeek?.addEventListener("pointerdown", () => {
+    vizSeeking = true;
+  });
+  ui.vizSeek?.addEventListener("input", () => {
+    if (!visualizer) return;
+    const ms = (Number(ui.vizSeek.value) / 1000) * visualizer.durationMs;
+    visualizer.seek(ms);
+  });
+  ui.vizSeek?.addEventListener("pointerup", () => {
+    vizSeeking = false;
+  });
+  const onVizDrag = (event) => {
+    event.preventDefault();
+    ui.vizDrop?.classList.add("is-over");
+  };
+  const onVizDragLeave = () => ui.vizDrop?.classList.remove("is-over");
+  ui.viewVisualizer?.addEventListener("dragover", onVizDrag);
+  ui.viewVisualizer?.addEventListener("dragenter", onVizDrag);
+  ui.viewVisualizer?.addEventListener("dragleave", onVizDragLeave);
+  ui.viewVisualizer?.addEventListener("drop", (event) => {
+    event.preventDefault();
+    ui.vizDrop?.classList.remove("is-over");
+    const file = event.dataTransfer?.files?.[0];
+    if (!file) return;
+    if (file.type.startsWith("image/")) {
+      fileToVizBackground(file)
+        .then(({ image, dataUrl }) => setVizBackgroundImage(image, dataUrl))
+        .catch((error) => showToast(error?.message || "Could not use that image"));
+      return;
+    }
+    visualizeMidiFile(file);
+  });
+
   window.addEventListener("keydown", (event) => {
     if (ui.settingsModal?.open || ui.videoModal?.open) return;
     if (event.target.closest?.("input, textarea, select")) return;
 
     if (event.code === "Space") {
       event.preventDefault();
+      if (currentView === "visualizer") {
+        synth.resume();
+        visualizer?.toggle();
+        syncVizPlayButton();
+        return;
+      }
       if (session.recording) pauseRecording();
       else if (session.paused) resumeRecording();
       else if (!session.active) startRecording();
@@ -1744,6 +2178,10 @@ function bindUi() {
 
   document.addEventListener("pointerdown", gestureUnlock);
   document.addEventListener("keydown", gestureUnlock);
+
+  renderVizThemes();
+  restoreVizBackground();
+  syncVizLookUi();
 }
 
 function tick() {

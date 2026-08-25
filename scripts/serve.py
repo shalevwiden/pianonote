@@ -25,6 +25,7 @@ class DevHandler(http.server.SimpleHTTPRequestHandler):
         ".mid": "audio/midi",
         ".midi": "audio/midi",
         ".wasm": "application/wasm",
+        ".mp3": "audio/mpeg",
     }
 
     def end_headers(self) -> None:

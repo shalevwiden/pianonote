@@ -27,6 +27,10 @@ export class PianoKeyboardUI {
   _render() {
     this.root.innerHTML = "";
 
+    const rail = document.createElement("div");
+    rail.className = "piano__rail";
+    rail.setAttribute("aria-hidden", "true");
+
     const whites = document.createElement("div");
     whites.className = "piano__whites";
     const blacks = document.createElement("div");
@@ -37,8 +41,10 @@ export class PianoKeyboardUI {
       if (!isBlackKey(note)) whiteNotes.push(note);
     }
 
+    // Real pianos nudge C#/F# toward the right of their group and D#/A# left.
+    const blackShift = { 1: 0.09, 3: -0.09, 6: 0.11, 8: 0, 10: -0.11 };
     const whiteWidth = 100 / whiteNotes.length;
-    const blackWidth = whiteWidth * 0.62;
+    const blackWidth = whiteWidth * 0.7;
     let whiteIndex = 0;
 
     for (let note = MIDI_LOWEST; note <= MIDI_HIGHEST; note++) {
@@ -52,8 +58,8 @@ export class PianoKeyboardUI {
 
       if (isBlackKey(note)) {
         key.className = "piano__key piano__key--black";
-        // Sit the black key across the seam between its two neighbouring whites.
-        key.style.left = `${whiteIndex * whiteWidth - blackWidth / 2}%`;
+        const nudge = (blackShift[note % 12] ?? 0) * whiteWidth;
+        key.style.left = `${whiteIndex * whiteWidth - blackWidth / 2 + nudge}%`;
         key.style.width = `${blackWidth}%`;
         blacks.appendChild(key);
       } else {
@@ -71,6 +77,7 @@ export class PianoKeyboardUI {
       this.keys.set(note, key);
     }
 
+    this.root.appendChild(rail);
     this.root.appendChild(whites);
     this.root.appendChild(blacks);
   }
@@ -126,14 +133,6 @@ export class PianoKeyboardUI {
     }
   }
 
-  /** Brings the mapped range into view when the octave changes. */
-  scrollToNote(note) {
-    const key = this.keys.get(note);
-    if (!key) return;
-    const scroller = this.root.parentElement;
-    if (!scroller) return;
-    const target =
-      key.offsetLeft - scroller.clientWidth / 2 + key.offsetWidth / 2;
-    scroller.scrollTo({ left: Math.max(0, target), behavior: "smooth" });
-  }
+  /** No-op: the studio keyboard is full-width and does not scroll. */
+  scrollToNote() {}
 }

@@ -1,24 +1,24 @@
 /**
- * Multi-voice Web Audio synth.
+ * Multi-voice instrument engine.
  *
- * Every instrument is synthesised in-browser: no samples to download, no
- * licensing, and the page stays fully offline. Realism varies — harpsichord,
- * electric piano and 80s synth are strong; Steinway and guitar are stylised
- * approximations rather than studio-grade samples.
+ * Acoustic piano, Rhodes, harpsichord and guitar play sampled MusyngKite notes.
+ * The 80s voice stays a supersaw synth. Samples fall back to the additive
+ * oscillators if a pack has not loaded yet.
  */
 
 import { noteToFrequency } from "./note-utils.js";
+import { packForVoice, SampleBank } from "./sample-bank.js";
 
 export const VOICES = [
   {
     id: "piano",
     label: "Grand Piano",
-    description: "Bright additive acoustic",
+    description: "Sampled concert grand",
   },
   {
     id: "steinway",
     label: "Steinway",
-    description: "Warm concert grand",
+    description: "Warmer grand, same samples",
   },
   {
     id: "cinematic",
@@ -28,17 +28,17 @@ export const VOICES = [
   {
     id: "harpsichord",
     label: "Harpsichord",
-    description: "Plucky baroque pluck",
+    description: "Sampled baroque pluck",
   },
   {
     id: "epiano",
     label: "Electric Piano",
-    description: "Rhodes-style bells",
+    description: "Sampled Rhodes",
   },
   {
     id: "eguitar",
     label: "Electric Guitar",
-    description: "Driven amp tone",
+    description: "Sampled overdriven amp",
   },
   {
     id: "eighties",
@@ -150,6 +150,7 @@ export class PianoSynth {
     /** @type {Map<number, object>} */
     this.voices = new Map();
     this.pendingRelease = new Set();
+    this.samples = new SampleBank();
   }
 
   _ensureContext() {
@@ -183,12 +184,24 @@ export class PianoSynth {
     compressor.connect(this.ctx.destination);
 
     this._applyVoiceMix();
+    this.preload(this.voiceId);
     return this.ctx;
+  }
+
+  /**
+   * Decode the sampled pack for a voice (no-op for the 80s synth).
+   * @param {string} [voiceId]
+   */
+  preload(voiceId = this.voiceId) {
+    const pack = packForVoice(voiceId);
+    if (!this.ctx || !pack) return Promise.resolve(false);
+    return this.samples.load(this.ctx, pack);
   }
 
   resume() {
     const ctx = this._ensureContext();
     if (ctx && ctx.state === "suspended") ctx.resume();
+    this.preload(this.voiceId);
   }
 
   get isSuspended() {
@@ -213,6 +226,7 @@ export class PianoSynth {
     this.allNotesOff();
     this.voiceId = voiceId;
     this._applyVoiceMix();
+    this.preload(voiceId);
   }
 
   _applyVoiceMix() {
@@ -220,9 +234,11 @@ export class PianoSynth {
     const cinematic = this.voiceId === "cinematic";
     const eighties = this.voiceId === "eighties";
     const now = this.ctx.currentTime;
+    const sampledRoom =
+      this.voiceId === "piano" || this.voiceId === "steinway" || this.voiceId === "epiano";
     this.dry.gain.setTargetAtTime(cinematic ? 0.72 : 1, now, 0.03);
     this.reverbSend.gain.setTargetAtTime(
-      cinematic ? 0.72 : eighties ? 0.22 : 0.08,
+      cinematic ? 0.72 : eighties ? 0.22 : sampledRoom ? 0.18 : 0.1,
       now,
       0.03
     );
@@ -306,6 +322,14 @@ export class PianoSynth {
     this._release(note, 0.03);
     this.pendingRelease.delete(note);
 
+    const pack = packForVoice(this.voiceId);
+    if (pack && this.samples.isReady(pack) && this._playSample(note, velocity)) {
+      return;
+    }
+    if (pack && !this.samples.isReady(pack)) {
+      this.preload(this.voiceId);
+    }
+
     const now = ctx.currentTime;
     const frequency = noteToFrequency(note);
     const level = Math.min(1, Math.max(0.08, velocity / 127));
@@ -321,6 +345,49 @@ export class PianoSynth {
       extras: built.extras ?? [],
       holdLevel: built.holdLevel ?? 0.0002,
     });
+  }
+
+  _playSample(note, velocity) {
+    const pack = packForVoice(this.voiceId);
+    const hit = pack ? this.samples.nearest(pack, note) : null;
+    if (!hit || !this.ctx) return false;
+
+    const ctx = this.ctx;
+    const now = ctx.currentTime;
+    const source = ctx.createBufferSource();
+    source.buffer = hit.buffer;
+    source.playbackRate.value = this.samples.playbackRate(note, hit.rootMidi);
+
+    const level = Math.min(1, Math.max(0.08, velocity / 127));
+    const envelope = ctx.createGain();
+    envelope.connect(this.dry);
+    envelope.connect(this.reverbSend);
+
+    const extras = [];
+    let node = source;
+    if (this.voiceId === "steinway") {
+      const filter = ctx.createBiquadFilter();
+      filter.type = "lowpass";
+      filter.frequency.value = 7200;
+      filter.Q.value = 0.35;
+      source.connect(filter);
+      node = filter;
+      extras.push(filter);
+    }
+    node.connect(envelope);
+
+    // Keep the recorded hammer/pluck; samples already contain their decay.
+    const peak = (this.voiceId === "eguitar" ? 0.62 : 0.92) * level;
+    envelope.gain.setValueAtTime(peak, now);
+
+    source.start(now);
+    this.voices.set(note, {
+      oscillators: [source],
+      envelope,
+      extras,
+      holdLevel: peak,
+    });
+    return true;
   }
 
   _buildVoice(ctx, frequency, level, now, envelope) {

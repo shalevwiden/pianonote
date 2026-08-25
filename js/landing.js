@@ -230,9 +230,27 @@ function initReveals() {
 
 function initNavScroll() {
   const nav = document.querySelector(".landing-nav");
+  const landing = document.body.classList.contains("landing")
+    ? document.body
+    : null;
+  const banner = document.querySelector(".landing-banner");
   if (!nav) return;
+
+  let lastY = window.scrollY;
+  let goingUp = false;
   const onScroll = () => {
-    nav.classList.toggle("is-scrolled", window.scrollY > 24);
+    const y = window.scrollY;
+    if (y < lastY - 2) goingUp = true;
+    else if (y > lastY + 2) goingUp = false;
+    nav.classList.toggle("is-scrolled", y > 24);
+
+    if (landing && banner) {
+      const hide = y >= window.innerHeight && !goingUp;
+      landing.classList.toggle("is-banner-away", hide);
+      banner.setAttribute("aria-hidden", hide ? "true" : "false");
+    }
+
+    lastY = y;
   };
   onScroll();
   window.addEventListener("scroll", onScroll, { passive: true });

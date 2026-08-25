@@ -47,7 +47,7 @@ A connected instrument **always** plays and records. The source toggle only deci
 | `Esc`                   | Stop the current take                   |
 | `⌘E` / `Ctrl+E`         | Export the session as MIDI              |
 
-Multiple keys can be held at once, key repeat is ignored, and every note lights up the on-screen 88-key piano. Notes sound through a built-in multi-voice synth (grand, Steinway, cinematic piano, harpsichord, electric piano, electric guitar, 80s synth), which can be muted with the Sound switch.
+Multiple keys can be held at once, key repeat is ignored, and every note lights up the on-screen 88-key piano. Notes sound through sampled MusyngKite instruments (grand piano, Rhodes, harpsichord, overdriven guitar) plus an 80s supersaw synth, which can be muted with the Sound switch.
 
 ## Recording and export
 
@@ -117,7 +117,8 @@ piano-midi/
 │   ├── app.js                # UI wiring and session flow
 │   ├── midi.js               # Web MIDI device manager
 │   ├── keyboard.js           # QWERTY piano mapping
-│   ├── synth.js              # WebAudio multi-voice synth
+│   ├── synth.js              # sampled instruments + 80s synth
+│   ├── sample-bank.js        # MusyngKite MP3 loader
 │   ├── piano-ui.js           # 88-key on-screen keyboard
 │   ├── recorder.js           # event capture, pause, live stats
 │   ├── midi-writer.js        # Standard MIDI File builder
@@ -125,11 +126,13 @@ piano-midi/
 │   ├── history.js            # saved session store
 │   ├── note-utils.js         # shared note helpers
 │   └── vendor/mediabunny.js  # bundled MP4 encoder (esbuild)
+├── assets/samples/           # MusyngKite instrument MP3s (see README there)
 ├── vendor/mediabunny-entry.mjs
 ├── package.json              # npm run build:vendor
 └── scripts/
     ├── serve.py              # local HTTP server
     ├── compile_scss.py       # SCSS → CSS
+    ├── fetch_samples.py      # download MusyngKite instrument MP3s
     ├── verify_midi.py        # inspect an exported .mid
     └── verify_video_timeline.mjs
 ```
@@ -153,7 +156,7 @@ Use Chrome or Edge. Safari and Firefox do not support Web MIDI here. Computer-ke
 Confirm the keyboard is powered and connected over USB rather than Bluetooth only, then check that it appears in macOS **Audio MIDI Setup**. Try another cable or port, and reload the page.
 
 **No sound**  
-Browsers keep audio locked until the page receives a real user gesture, and MIDI notes do not count as one — playing a connected instrument on a page you have never clicked leaves the audio context suspended. Click anywhere once and the sound starts; the app prompts you if it detects this. Also check that the Sound switch is on.
+Browsers keep audio locked until the page receives a real user gesture, and MIDI notes do not count as one — playing a connected instrument on a page you have never clicked leaves the audio context suspended. Click anywhere once and the sound starts; the app prompts you if it detects this. Also check that the Sound switch is on. If piano still sounds like a thin synth, the sampled packs are missing — run `python3 scripts/fetch_samples.py` so MP3s land in `assets/samples/`.
 
 **Notes are not counting**  
 Counting starts when a recording is active (not paused). Press **Record** first, and confirm the input source matches how you are playing.

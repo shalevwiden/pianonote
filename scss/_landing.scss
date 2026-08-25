@@ -5,6 +5,10 @@ html:has(body.landing) {
   scroll-padding-top: calc(2rem + 4.25rem + 0.75rem);
 }
 
+html:has(body.landing.is-banner-away) {
+  scroll-padding-top: calc(4.25rem + 0.75rem);
+}
+
 .landing {
   --ink: #f4f1ea;
   --ink-muted: rgba(244, 241, 234, 0.62);
@@ -52,7 +56,8 @@ html:has(body.landing) {
   font-weight: 500;
   letter-spacing: 0.14em;
   text-transform: uppercase;
-  animation: landing-banner-in 0.7s $ease-out both;
+  animation: landing-banner-in 0.7s $ease-out;
+  transition: transform 0.45s $ease-out, opacity 0.35s $ease-out;
 }
 
 @keyframes landing-banner-in {
@@ -63,6 +68,18 @@ html:has(body.landing) {
   to {
     opacity: 1;
     transform: translateY(0);
+  }
+}
+
+.landing.is-banner-away {
+  .landing-banner {
+    opacity: 0;
+    transform: translateY(-110%);
+    pointer-events: none;
+  }
+
+  .landing-nav {
+    top: 0;
   }
 }
 
@@ -77,8 +94,8 @@ html:has(body.landing) {
   justify-content: flex-start;
   gap: 1rem;
   padding: 1.05rem clamp(1.25rem, 4vw, 3rem);
-  transition: background 0.35s $ease-out, border-color 0.35s $ease-out,
-    backdrop-filter 0.35s $ease-out;
+  transition: top 0.45s $ease-out, background 0.35s $ease-out,
+    border-color 0.35s $ease-out, backdrop-filter 0.35s $ease-out;
 
   &.is-scrolled {
     background: rgba(7, 8, 12, 0.78);
@@ -1324,6 +1341,18 @@ html[data-theme="light"] .landing-footer__link {
   .landing-hero__media img,
   .landing-floater {
     animation: none !important;
+  }
+
+  .landing-banner {
+    transition: opacity 0.2s ease;
+  }
+
+  .landing.is-banner-away .landing-banner {
+    transform: none;
+  }
+
+  .landing-nav {
+    transition: background 0.2s ease, border-color 0.2s ease;
   }
 
   .hero-rise,
