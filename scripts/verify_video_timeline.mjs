@@ -9,6 +9,8 @@ import {
   sessionDurationMs,
   countAtTime,
   msSinceLastNote,
+  videoContentStartMs,
+  START_AT_NOTE_LEAD_MS,
   VIDEO_FPS,
   TAIL_MS,
 } from "../js/video-export.js";
@@ -63,5 +65,31 @@ const ghost = buildNoteTimeline([
   { timeMs: 10, data: new Uint8Array([0x90, 61, 80]) },
 ]);
 assert(ghost.length === 1 && ghost[0].count === 1, "ignore zero-velocity note-ons");
+
+assert(videoContentStartMs(timeline, false) === 0, "no trim when switch is off");
+assert(
+  videoContentStartMs(timeline, true) === 0 - START_AT_NOTE_LEAD_MS,
+  "lead-in can go slightly negative so the first note still jumps from 0"
+);
+
+const delayed = buildNoteTimeline([
+  noteOn(2500, 60),
+  noteOff(2700, 60),
+  noteOn(4000, 62),
+  noteOff(4200, 62),
+]);
+const startMs = videoContentStartMs(delayed, true);
+assert(
+  startMs === 2500 - START_AT_NOTE_LEAD_MS,
+  `trim should begin just before first note, got ${startMs}`
+);
+assert(countAtTime(delayed, startMs) === 0, "first video frame is still 0");
+assert(
+  countAtTime(delayed, startMs + START_AT_NOTE_LEAD_MS) === 1,
+  "count jumps to 1 at the first note"
+);
+assert(countAtTime(delayed, startMs + START_AT_NOTE_LEAD_MS / 2) === 0, "lead-in stays at 0");
+assert(videoContentStartMs(delayed, false) === 0, "untrimmed video still starts at session 0");
+assert(videoContentStartMs([], true) === 0, "no notes means no trim");
 
 console.log(`OK  timeline ${timeline.length} notes, ${frames} frames @ ${VIDEO_FPS}fps`);

@@ -52,6 +52,30 @@
     min-height: 100%;
   }
 
+  &__option {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.85rem 0.95rem;
+    border: 1px solid var(--border);
+    border-radius: $radius-md;
+    background: var(--surface);
+
+    .setting__title {
+      font-size: 0.875rem;
+    }
+
+    .setting__desc {
+      max-width: 28ch;
+    }
+
+    .switch {
+      flex-shrink: 0;
+      padding-top: 0.15rem;
+    }
+  }
+
   &__panel {
     display: flex;
     flex-direction: column;

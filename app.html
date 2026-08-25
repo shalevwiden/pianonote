@@ -828,6 +828,26 @@
           </div>
 
           <div class="video-editor__controls">
+            <div class="video-editor__option">
+              <div>
+                <div class="setting__title">Start at first note</div>
+                <div class="setting__desc">
+                  Skip silence after Record. The counter still jumps from 0.
+                </div>
+              </div>
+              <label
+                class="switch"
+                title="Begin the video just before the first MIDI note"
+              >
+                <input
+                  type="checkbox"
+                  id="videoStartAtFirstNote"
+                  aria-label="Start video at first note"
+                />
+                <span class="switch__track"><span class="switch__thumb"></span></span>
+              </label>
+            </div>
+
             <div class="video-editor__panel" id="videoCustomizePanel" hidden>
               <section class="setting">
                 <div class="setting__head">

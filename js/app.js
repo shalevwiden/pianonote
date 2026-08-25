@@ -26,6 +26,7 @@ import {
   TAIL_MS,
   buildNoteTimeline,
   sessionDurationMs,
+  videoContentStartMs,
   renderCounterFrame,
   exportCounterVideo,
   downloadBlob,
@@ -43,6 +44,7 @@ const STORAGE = {
   source: "psr-source",
   voice: "psr-voice",
   videoStyle: "psr-video-style-v2",
+  videoStartAtFirstNote: "psr-video-start-at-first-note",
   pedalCount: "psr-pedal-count",
 };
 
@@ -160,6 +162,7 @@ const ui = {
   btnVideoRender: $("btnVideoRender"),
   btnVideoCancel: $("btnVideoCancel"),
   videoCompat: $("videoCompat"),
+  videoStartAtFirstNote: $("videoStartAtFirstNote"),
 };
 
 const midi = new MidiManager();
@@ -1074,6 +1077,18 @@ function persistVideoStyle(style) {
   localStorage.setItem(STORAGE.videoStyle, JSON.stringify(style));
 }
 
+function loadStartAtFirstNote() {
+  return localStorage.getItem(STORAGE.videoStartAtFirstNote) === "on";
+}
+
+function persistStartAtFirstNote(on) {
+  localStorage.setItem(STORAGE.videoStartAtFirstNote, on ? "on" : "off");
+}
+
+function isStartAtFirstNote() {
+  return Boolean(ui.videoStartAtFirstNote?.checked);
+}
+
 function readVideoStyleFromForm() {
   return {
     ...DEFAULT_VIDEO_STYLE,
@@ -1201,9 +1216,13 @@ function updateVideoPreview() {
   persistVideoStyle(style);
 
   const timeline = buildNoteTimeline(videoEditor.events);
+  const startOffsetMs = videoContentStartMs(timeline, isStartAtFirstNote());
   const contentMs = Math.max(
-    videoEditor.durationMs,
-    sessionDurationMs(videoEditor.events, timeline)
+    0,
+    Math.max(
+      videoEditor.durationMs,
+      sessionDurationMs(videoEditor.events, timeline)
+    ) - startOffsetMs
   );
   // Preview the final count with a settled hit animation.
   const count = timeline.length
@@ -1245,6 +1264,9 @@ async function openVideoEditor({ events, noteCount, durationMs, filenameBase }) 
   };
 
   applyVideoStyleToForm(videoEditor.style);
+  if (ui.videoStartAtFirstNote) {
+    ui.videoStartAtFirstNote.checked = loadStartAtFirstNote();
+  }
   setVideoCustomizeOpen(false);
   setVideoRenderUi(false);
   if (ui.videoProgressBlock) ui.videoProgressBlock.hidden = true;
@@ -1285,6 +1307,7 @@ function setVideoRenderUi(rendering) {
     ui.videoTextColorEnd,
     ui.videoGradientAngle,
     ui.videoBgColor,
+    ui.videoStartAtFirstNote,
   ];
   for (const el of controls) {
     if (el) el.disabled = rendering;
@@ -1313,6 +1336,7 @@ async function startVideoRender() {
     const blob = await exportCounterVideo({
       events: videoEditor.events,
       style,
+      startAtFirstNote: isStartAtFirstNote(),
       previewCanvas: ui.videoPreview,
       shouldCancel: () => videoEditor.cancelRequested,
       onProgress: ({ ratio, frame, totalFrames, count }) => {
@@ -1573,6 +1597,10 @@ function bindUi() {
   ui.videoTextColor?.addEventListener("input", onVideoStyleChange);
   ui.videoTextColorEnd?.addEventListener("input", onVideoStyleChange);
   ui.videoBgColor?.addEventListener("input", onVideoStyleChange);
+  ui.videoStartAtFirstNote?.addEventListener("change", () => {
+    persistStartAtFirstNote(isStartAtFirstNote());
+    updateVideoPreview();
+  });
   ui.videoGradientAngle?.addEventListener("input", () => {
     if (ui.videoGradientAngleValue) {
       ui.videoGradientAngleValue.textContent = `${ui.videoGradientAngle.value}°`;

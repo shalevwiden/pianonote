@@ -23,6 +23,10 @@ export const FRAME_DURATION = 1 / VIDEO_FPS;
 export const HIT_ANIM_MS = 280;
 /** Hold the final frame so the last count is readable. */
 export const TAIL_MS = 1500;
+/** Frames of "0" before the first note when trimming lead-in silence. */
+export const START_AT_NOTE_LEAD_FRAMES = 2;
+export const START_AT_NOTE_LEAD_MS =
+  (START_AT_NOTE_LEAD_FRAMES / VIDEO_FPS) * 1000;
 
 export const DEFAULT_VIDEO_STYLE = {
   textMode: "solid", // "solid" | "gradient"
@@ -155,6 +159,17 @@ export function sessionDurationMs(events, noteTimeline) {
     ? noteTimeline[noteTimeline.length - 1].timeMs
     : 0;
   return Math.max(lastEvent, lastNote);
+}
+
+/**
+ * Session-time (ms) that maps to video t=0.
+ * When startAtFirstNote is on, skip silence before the first note-on, but keep a
+ * short lead so frame 0 is still 0 and the first note still jumps in.
+ * May be slightly negative if the first note is earlier than the lead-in.
+ */
+export function videoContentStartMs(timeline, startAtFirstNote = false) {
+  if (!startAtFirstNote || !timeline.length) return 0;
+  return timeline[0].timeMs - START_AT_NOTE_LEAD_MS;
 }
 
 /** Count at or before timeMs via binary search. */
@@ -310,6 +325,7 @@ export async function isVideoExportSupported() {
  * @param {object} options
  * @param {Array<{ timeMs: number, data: Uint8Array }>} options.events
  * @param {object} [options.style]
+ * @param {boolean} [options.startAtFirstNote]
  * @param {(progress: { ratio: number, frame: number, totalFrames: number, count: number }) => void} [options.onProgress]
  * @param {() => boolean} [options.shouldCancel]
  * @param {HTMLCanvasElement} [options.previewCanvas] optional live preview target
@@ -319,6 +335,7 @@ export async function exportCounterVideo(options) {
   const {
     events,
     style = DEFAULT_VIDEO_STYLE,
+    startAtFirstNote = false,
     onProgress,
     shouldCancel,
     previewCanvas,
@@ -332,7 +349,11 @@ export async function exportCounterVideo(options) {
   }
 
   const timeline = buildNoteTimeline(events);
-  const contentMs = sessionDurationMs(events, timeline);
+  const startOffsetMs = videoContentStartMs(timeline, startAtFirstNote);
+  const contentMs = Math.max(
+    0,
+    sessionDurationMs(events, timeline) - startOffsetMs
+  );
   const totalMs = contentMs + TAIL_MS;
   const totalFrames = Math.max(1, Math.ceil((totalMs / 1000) * VIDEO_FPS) + 1);
 
@@ -374,7 +395,7 @@ export async function exportCounterVideo(options) {
         break;
       }
 
-      const timeMs = (frame / VIDEO_FPS) * 1000;
+      const timeMs = (frame / VIDEO_FPS) * 1000 + startOffsetMs;
       const count = countAtTime(timeline, timeMs);
       const sinceNote = msSinceLastNote(timeline, timeMs);
       const hitProgress =
