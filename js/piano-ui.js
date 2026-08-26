@@ -44,7 +44,7 @@ export class PianoKeyboardUI {
     // Real pianos nudge C#/F# toward the right of their group and D#/A# left.
     const blackShift = { 1: 0.09, 3: -0.09, 6: 0.11, 8: 0, 10: -0.11 };
     const whiteWidth = 100 / whiteNotes.length;
-    const blackWidth = whiteWidth * 0.7;
+    const blackWidth = whiteWidth * 0.52;
     let whiteIndex = 0;
 
     for (let note = MIDI_LOWEST; note <= MIDI_HIGHEST; note++) {

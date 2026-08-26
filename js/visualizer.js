@@ -187,7 +187,7 @@ function buildKeys(width, pianoTop, pianoH) {
   const padX = Math.max(8, width * 0.012);
   const inner = Math.max(1, width - padX * 2);
   const whiteW = inner / WHITE_COUNT;
-  const blackW = whiteW * 0.58;
+  const blackW = whiteW * 0.52;
   const blackH = pianoH * 0.62;
   const whites = [];
   const blacks = [];
@@ -239,6 +239,8 @@ export class MidiVisualizer {
     if (options.bgColor) this.bgColor = options.bgColor;
     this.lookaheadMs = options.lookaheadMs ?? LOOKAHEAD_MS;
     this.bgImage = null;
+    this.trailStrength = options.trailStrength ?? 0.6;
+    this.trailWave = options.trailWave ?? 0.4;
 
     this.notes = [];
     this.durationMs = 0;
@@ -249,6 +251,7 @@ export class MidiVisualizer {
     this.lastFrame = 0;
     this.keys = null;
     this.particles = [];
+    this.trails = [];
     this.keyFlash = new Map();
     this.sounding = new Set();
     this.triggered = new Set();
@@ -290,6 +293,16 @@ export class MidiVisualizer {
     if (!this.playing) this.draw(0);
   }
 
+  setTrailStrength(value) {
+    this.trailStrength = Math.min(1, Math.max(0, Number(value) || 0));
+    if (!this.playing) this.draw(0);
+  }
+
+  setTrailWave(value) {
+    this.trailWave = Math.min(1, Math.max(0, Number(value) || 0));
+    if (!this.playing) this.draw(0);
+  }
+
   setBackgroundImage(image) {
     this.bgImage = image || null;
     if (!this.playing) this.draw(0);
@@ -306,6 +319,7 @@ export class MidiVisualizer {
     this.triggered.clear();
     this.released.clear();
     this.particles = [];
+    this.trails = [];
     this.keyFlash.clear();
     this.resize();
     this.draw(0);
@@ -411,6 +425,8 @@ export class MidiVisualizer {
     }
 
     this.updateParticles(dt);
+    this.emitNoteTrails(dt);
+    this.updateTrails(dt);
     this.decayFlashes(dt);
     this.draw(dt);
     this.onTime?.(this.playhead, this.durationMs);
@@ -466,6 +482,62 @@ export class MidiVisualizer {
     this.particles = next;
   }
 
+  emitNoteTrails(dt) {
+    const strength = this.trailStrength;
+    if (!this.playing || strength <= 0.02 || !this.keys) return;
+
+    const rgb = parseHex(this.color);
+    const pianoTop = this.keys.pianoTop;
+    const budget = Math.round(10 + strength * 42);
+    let spawned = 0;
+
+    for (const note of this.notes) {
+      if (spawned >= budget) break;
+      if (note.endMs < this.playhead) continue;
+      if (note.startMs > this.playhead + this.lookaheadMs) continue;
+      const key = this.keys.byMidi.get(note.midi);
+      if (!key) continue;
+
+      const bottom = Math.min(pianoTop, this.yAt(note.startMs));
+      const top = this.yAt(note.endMs);
+      if (bottom < -8 || top > pianoTop) continue;
+      const h = Math.max(MIN_NOTE_PX, bottom - top);
+      const y = bottom - h;
+      const count = Math.max(1, Math.round(strength * (1.2 + h / 90)));
+
+      for (let i = 0; i < count && spawned < budget; i++) {
+        this.trails.push({
+          x: key.cx + (Math.random() - 0.5) * key.w * 0.42,
+          y: y + Math.random() * Math.min(h * 0.45, 36),
+          phase: Math.random() * Math.PI * 2,
+          freq: 2.4 + Math.random() * 4.2,
+          amp: (10 + Math.random() * 36) * this.trailWave,
+          vy: -12 - Math.random() * 22,
+          life: 0.55 + strength * 0.75,
+          decay: 0.65 + Math.random() * 0.95,
+          size: 1.15 + strength * 3.1 + Math.random() * 1.4,
+          rgb,
+        });
+        spawned += 1;
+      }
+    }
+
+    if (this.trails.length > 700) this.trails.splice(0, this.trails.length - 700);
+  }
+
+  updateTrails(dt) {
+    const next = [];
+    for (const p of this.trails) {
+      p.life -= dt * p.decay;
+      if (p.life <= 0) continue;
+      p.phase += dt * p.freq;
+      p.x += Math.sin(p.phase) * p.amp * dt;
+      p.y += p.vy * dt;
+      next.push(p);
+    }
+    this.trails = next;
+  }
+
   decayFlashes(dt) {
     for (const [midi, value] of this.keyFlash) {
       const next = value - dt * 1.8;
@@ -494,16 +566,10 @@ export class MidiVisualizer {
       drawCoverImage(ctx, this.bgImage, width, height);
       ctx.fillStyle = rgba(bg, this.overlay);
       ctx.fillRect(0, 0, width, pianoTop);
-    } else {
-      const sky = ctx.createLinearGradient(0, 0, 0, pianoTop);
-      sky.addColorStop(0, this.bgColor || DEFAULT_VIZ_THEME.bg);
-      sky.addColorStop(0.72, this.skyColor || this.bgColor || DEFAULT_VIZ_THEME.sky);
-      sky.addColorStop(1, rgba(rgb, this.lightScene ? 0.1 : 0.16));
-      ctx.fillStyle = sky;
-      ctx.fillRect(0, 0, width, pianoTop);
     }
 
     this.drawLaneGuides(ctx);
+    this.drawTrails(ctx);
     this.drawNotes(ctx, rgb);
     this.drawFog(ctx, rgb);
     this.drawParticles(ctx);
@@ -527,8 +593,9 @@ export class MidiVisualizer {
 
   drawNotes(ctx, rgb) {
     const pianoTop = this.keys.pianoTop;
-    const light = mixToward(rgb, 255, 0.35);
-    const dark = mixToward(rgb, 20, 0.22);
+    const light = mixToward(rgb, 255, 0.5);
+    const dark = mixToward(rgb, 20, 0.18);
+    const glow = mixToward(rgb, 255, 0.2);
 
     for (const note of this.notes) {
       if (note.endMs < this.playhead - 80) continue;
@@ -537,10 +604,7 @@ export class MidiVisualizer {
       if (!key) continue;
 
       const bottom = Math.min(pianoTop, this.yAt(note.startMs));
-      let top = this.yAt(note.endMs);
-      if (note.startMs <= this.playhead && note.endMs >= this.playhead) {
-        // Playing notes sit on the keyboard.
-      }
+      const top = this.yAt(note.endMs);
       if (bottom < -20) continue;
       if (top > pianoTop) continue;
 
@@ -551,32 +615,67 @@ export class MidiVisualizer {
       const w = Math.max(3, key.w - inset * 2);
       const active = note.startMs <= this.playhead && note.endMs > this.playhead;
       const vel = Math.min(1, Math.max(0.45, note.velocity / 127));
+      const drawY = Math.max(-12, y);
+      const drawH = h + (y < 0 ? y : 0) + 2;
+      const radius = Math.min(8, w / 2);
 
       ctx.save();
-      ctx.shadowColor = rgba(rgb, active ? 0.85 : 0.45 * vel);
-      ctx.shadowBlur = active ? 28 : 16;
+      ctx.globalCompositeOperation = this.lightScene ? "source-over" : "lighter";
+      ctx.shadowColor = rgba(glow, active ? 1 : 0.7 * vel);
+      ctx.shadowBlur = active ? 46 : 28;
+      ctx.fillStyle = rgba(rgb, active ? 0.55 : 0.32 * vel);
+      roundedRect(ctx, x - 2, drawY, w + 4, drawH, radius);
+      ctx.fill();
+      ctx.restore();
+
+      ctx.save();
+      ctx.shadowColor = rgba(rgb, active ? 0.95 : 0.55 * vel);
+      ctx.shadowBlur = active ? 36 : 22;
       const grad = ctx.createLinearGradient(x, y, x, y + h);
-      grad.addColorStop(0, rgba(light, 0.95 * vel));
-      grad.addColorStop(1, rgba(dark, 0.92 * vel));
+      grad.addColorStop(0, rgba(light, 1));
+      grad.addColorStop(0.45, rgba(rgb, 0.98 * vel));
+      grad.addColorStop(1, rgba(dark, 0.95 * vel));
       ctx.fillStyle = grad;
-      roundedRect(ctx, x, Math.max(-12, y), w, h + (y < 0 ? y : 0) + 2, Math.min(8, w / 2));
+      roundedRect(ctx, x, drawY, w, drawH, radius);
       ctx.fill();
 
       ctx.shadowBlur = 0;
-      ctx.fillStyle = rgba({ r: 255, g: 255, b: 255 }, active ? 0.28 : 0.14);
-      roundedRect(ctx, x + 1.5, Math.max(-12, y) + 1.5, Math.max(1, w * 0.28), Math.max(4, h * 0.55), 4);
+      ctx.fillStyle = rgba({ r: 255, g: 255, b: 255 }, active ? 0.42 : 0.2);
+      roundedRect(
+        ctx,
+        x + 1.5,
+        drawY + 1.5,
+        Math.max(1, w * 0.32),
+        Math.max(4, h * 0.55),
+        4
+      );
       ctx.fill();
       ctx.restore();
     }
   }
 
+  drawTrails(ctx) {
+    if (!this.trails.length) return;
+    ctx.save();
+    ctx.globalCompositeOperation = this.lightScene ? "source-over" : "lighter";
+    const alphaScale = 0.28 + this.trailStrength * 0.55;
+    for (const p of this.trails) {
+      const a = Math.max(0, p.life) * alphaScale;
+      ctx.fillStyle = rgba(p.rgb, a);
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.size * (0.45 + p.life * 0.9), 0, Math.PI * 2);
+      ctx.fill();
+    }
+    ctx.restore();
+  }
+
   drawFog(ctx, rgb) {
     const pianoTop = this.keys.pianoTop;
-    const fog = ctx.createLinearGradient(0, pianoTop - 70, 0, pianoTop);
+    const fog = ctx.createLinearGradient(0, pianoTop - 42, 0, pianoTop);
     fog.addColorStop(0, rgba(rgb, 0));
-    fog.addColorStop(1, rgba(rgb, this.fogStrength ?? 0.22));
+    fog.addColorStop(1, rgba(rgb, (this.fogStrength ?? 0.22) * 0.45));
     ctx.fillStyle = fog;
-    ctx.fillRect(0, pianoTop - 70, this.width, 70);
+    ctx.fillRect(0, pianoTop - 42, this.width, 42);
   }
 
   drawParticles(ctx) {

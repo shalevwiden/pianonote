@@ -183,6 +183,8 @@ const ui = {
   vizThemes: $("vizThemes"),
   vizColor: $("vizColor"),
   vizBgColor: $("vizBgColor"),
+  vizTrail: $("vizTrail"),
+  vizWave: $("vizWave"),
   vizBgImage: $("vizBgImage"),
   btnVizBgClear: $("btnVizBgClear"),
   vizSeek: $("vizSeek"),
@@ -262,16 +264,18 @@ function defaultVizTheme() {
 function loadVizLook() {
   try {
     const raw = localStorage.getItem(STORAGE.vizLook);
-    if (!raw) return { ...defaultVizTheme() };
+    if (!raw) return { ...defaultVizTheme(), trail: 0.6, wave: 0.4 };
     const parsed = JSON.parse(raw);
     const theme = VIZ_THEMES.find((item) => item.id === parsed.themeId) || defaultVizTheme();
     return {
       ...theme,
       note: parsed.note || theme.note,
       bg: parsed.bg || theme.bg,
+      trail: Number.isFinite(parsed.trail) ? parsed.trail : 0.6,
+      wave: Number.isFinite(parsed.wave) ? parsed.wave : 0.4,
     };
   } catch {
-    return { ...defaultVizTheme() };
+    return { ...defaultVizTheme(), trail: 0.6, wave: 0.4 };
   }
 }
 
@@ -281,6 +285,8 @@ const visualizer = ui.vizCanvas
       theme: vizLookBoot,
       color: vizLookBoot.note,
       bgColor: vizLookBoot.bg,
+      trailStrength: vizLookBoot.trail ?? 0.6,
+      trailWave: vizLookBoot.wave ?? 0.4,
       onTime: (playhead, duration) => {
         if (vizSeeking) return;
         if (ui.vizSeek && duration > 0) {
@@ -1125,6 +1131,8 @@ function persistVizLook() {
       themeId: visualizer.themeId || DEFAULT_VIZ_THEME.id,
       note: visualizer.color,
       bg: visualizer.bgColor,
+      trail: visualizer.trailStrength,
+      wave: visualizer.trailWave,
     })
   );
 }
@@ -1133,6 +1141,8 @@ function syncVizLookUi() {
   if (!visualizer) return;
   if (ui.vizColor) ui.vizColor.value = visualizer.color;
   if (ui.vizBgColor) ui.vizBgColor.value = visualizer.bgColor || DEFAULT_VIZ_THEME.bg;
+  if (ui.vizTrail) ui.vizTrail.value = String(Math.round((visualizer.trailStrength ?? 0.6) * 100));
+  if (ui.vizWave) ui.vizWave.value = String(Math.round((visualizer.trailWave ?? 0.4) * 100));
   if (ui.btnVizBgClear) ui.btnVizBgClear.hidden = !visualizer.bgImage;
   for (const btn of document.querySelectorAll(".viz__theme")) {
     btn.classList.toggle("is-active", btn.dataset.themeId === visualizer.themeId);
@@ -2080,6 +2090,14 @@ function bindUi() {
   });
   ui.vizBgColor?.addEventListener("input", () => {
     visualizer?.setBackgroundColor(ui.vizBgColor.value);
+    persistVizLook();
+  });
+  ui.vizTrail?.addEventListener("input", () => {
+    visualizer?.setTrailStrength(Number(ui.vizTrail.value) / 100);
+    persistVizLook();
+  });
+  ui.vizWave?.addEventListener("input", () => {
+    visualizer?.setTrailWave(Number(ui.vizWave.value) / 100);
     persistVizLook();
   });
   ui.vizBgImage?.addEventListener("change", async () => {

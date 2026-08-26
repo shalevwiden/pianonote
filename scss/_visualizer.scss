@@ -251,6 +251,41 @@ body.is-viz {
     }
   }
 
+  &__dial {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.15rem 0.55rem 0.15rem 0.5rem;
+    border-radius: 999px;
+    background: color-mix(in srgb, var(--text) 5%, transparent);
+
+    span {
+      font-size: 0.68rem;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      color: var(--text-secondary);
+    }
+
+    input[type="range"] {
+      width: 72px;
+      appearance: none;
+      height: 4px;
+      border-radius: 999px;
+      background: color-mix(in srgb, var(--text) 18%, transparent);
+      outline: none;
+
+      &::-webkit-slider-thumb {
+        appearance: none;
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        background: var(--accent-strong);
+        cursor: pointer;
+      }
+    }
+  }
+
   &__swatch--file {
     padding-right: 0.55rem;
   }
