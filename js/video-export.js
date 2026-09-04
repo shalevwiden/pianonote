@@ -2,8 +2,7 @@
  * Silent 1080p/60fps counter video exporter.
  *
  * Rebuilds the live note-count curve from session events, paints each frame to
- * a canvas (with the same punchy scale flash as the dashboard), then encodes an
- * H.264 MP4 through WebCodecs via Mediabunny.
+ * a canvas, then encodes an H.264 MP4 through WebCodecs via Mediabunny.
  */
 
 import {
@@ -19,8 +18,6 @@ export const VIDEO_WIDTH = 1920;
 export const VIDEO_HEIGHT = 1080;
 export const VIDEO_FPS = 60;
 export const FRAME_DURATION = 1 / VIDEO_FPS;
-/** How long the hit-scale animation lasts after each note on, in ms. */
-export const HIT_ANIM_MS = 280;
 /** Hold the final frame so the last count is readable. */
 export const TAIL_MS = 1500;
 /** Frames of "0" before the first note when trimming lead-in silence. */
@@ -209,10 +206,6 @@ export function msSinceLastNote(timeline, timeMs) {
   return timeMs - timeline[best].timeMs;
 }
 
-function easeOutCubic(t) {
-  return 1 - Math.pow(1 - t, 3);
-}
-
 function parseHex(color) {
   const hex = color.replace("#", "").trim();
   const full =
@@ -249,7 +242,6 @@ export function renderCounterFrame(ctx, options) {
     width = VIDEO_WIDTH,
     height = VIDEO_HEIGHT,
     count = 0,
-    hitProgress = 1, // 0 = just hit, 1 = settled
     style = DEFAULT_VIDEO_STYLE,
   } = options;
 
@@ -258,9 +250,6 @@ export function renderCounterFrame(ctx, options) {
   ctx.clearRect(0, 0, width, height);
   ctx.fillStyle = s.backgroundColor;
   ctx.fillRect(0, 0, width, height);
-
-  const scale = 1 + (1 - hitProgress) * 0.018;
-  const glow = (1 - hitProgress) * 0.55;
 
   if (s.showLabel) {
     ctx.font = `500 ${Math.round(height * 0.04)}px "Outfit", "DM Sans", system-ui, sans-serif`;
@@ -281,21 +270,12 @@ export function renderCounterFrame(ctx, options) {
   const cx = width / 2;
   const cy = height * 0.54;
 
-  ctx.translate(cx, cy);
-  ctx.scale(scale, scale);
-
-  if (glow > 0.01) {
-    ctx.shadowColor =
-      s.textMode === "gradient" ? s.textColorEnd : s.textColor;
-    ctx.shadowBlur = 48 * glow;
-  }
-
   if (s.textMode === "gradient") {
     const grad = ctx.createLinearGradient(
       0,
-      -fontSize * 0.55,
-      Math.sin((s.gradientAngle * Math.PI) / 180) * fontSize,
-      Math.cos((s.gradientAngle * Math.PI) / 180) * fontSize
+      cy - fontSize * 0.55,
+      cx + Math.sin((s.gradientAngle * Math.PI) / 180) * fontSize,
+      cy + Math.cos((s.gradientAngle * Math.PI) / 180) * fontSize
     );
     grad.addColorStop(0, s.textColor);
     grad.addColorStop(1, s.textColorEnd);
@@ -304,7 +284,7 @@ export function renderCounterFrame(ctx, options) {
     ctx.fillStyle = s.textColor;
   }
 
-  ctx.fillText(text, 0, 0);
+  ctx.fillText(text, cx, cy);
   ctx.restore();
 }
 
@@ -397,13 +377,8 @@ export async function exportCounterVideo(options) {
 
       const timeMs = (frame / VIDEO_FPS) * 1000 + startOffsetMs;
       const count = countAtTime(timeline, timeMs);
-      const sinceNote = msSinceLastNote(timeline, timeMs);
-      const hitProgress =
-        sinceNote >= HIT_ANIM_MS
-          ? 1
-          : easeOutCubic(sinceNote / HIT_ANIM_MS);
 
-      renderCounterFrame(ctx, { count, hitProgress, style });
+      renderCounterFrame(ctx, { count, style });
       if (previewCtx) {
         previewCtx.drawImage(canvas, 0, 0);
       }

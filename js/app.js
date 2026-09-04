@@ -1590,7 +1590,7 @@ function updateVideoPreview() {
   canvas.height = VIDEO_HEIGHT;
   const ctx = canvas.getContext("2d", { alpha: false });
   if (!ctx) return;
-  renderCounterFrame(ctx, { count, hitProgress: 1, style });
+  renderCounterFrame(ctx, { count, style });
 
   const totalMs = contentMs + TAIL_MS;
   const frames = Math.max(1, Math.ceil((totalMs / 1000) * VIDEO_FPS) + 1);
