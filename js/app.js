@@ -1,6 +1,7 @@
 import { MidiManager } from "./midi.js";
 import { SessionRecorder } from "./recorder.js";
 import { buildMidiFile, downloadMidi } from "./midi-writer.js";
+import { downloadAudio, renderPianoMp3 } from "./audio-export.js";
 import { PianoSynth, VOICES } from "./synth.js";
 import { PianoKeyboardUI } from "./piano-ui.js";
 import { ComputerKeyboard, DEFAULT_KEY_MAP, codeLabel } from "./keyboard.js";
@@ -98,6 +99,7 @@ const ui = {
   btnFocusResume: $("btnFocusResume"),
   btnFocusStop: $("btnFocusStop"),
   btnExport: $("btnExport"),
+  btnExportMp3: $("btnExportMp3"),
   btnSaveVideo: $("btnSaveVideo"),
   btnSave: $("btnSave"),
   btnSaveLabel: $("btnSaveLabel"),
@@ -134,6 +136,7 @@ const ui = {
   sessionEditForm: $("sessionEditForm"),
   btnDetailSaveMeta: $("btnDetailSaveMeta"),
   btnDetailExport: $("btnDetailExport"),
+  btnDetailMp3: $("btnDetailMp3"),
   btnDetailVideo: $("btnDetailVideo"),
   btnDetailVisualize: $("btnDetailVisualize"),
   btnDetailDelete: $("btnDetailDelete"),
@@ -212,6 +215,7 @@ let statsClockId = null;
 let focusViewOpen = false;
 let pedalCountMode = false;
 let pedalScopedCount = 0;
+let audioExporting = false;
 
 /** Active video-editor payload (current take or History session). */
 let videoEditor = {
@@ -256,8 +260,9 @@ function defaultVizTheme() {
     document.documentElement.getAttribute("data-theme") ||
     "light";
   return (
-    VIZ_THEMES.find((theme) => theme.id === (appTheme === "light" ? "light" : "dark")) ||
-    DEFAULT_VIZ_THEME
+    VIZ_THEMES.find(
+      (theme) => theme.id === (appTheme === "light" ? "light" : "dark"),
+    ) || DEFAULT_VIZ_THEME
   );
 }
 
@@ -266,7 +271,9 @@ function loadVizLook() {
     const raw = localStorage.getItem(STORAGE.vizLook);
     if (!raw) return { ...defaultVizTheme(), trail: 0.6, wave: 0.4 };
     const parsed = JSON.parse(raw);
-    const theme = VIZ_THEMES.find((item) => item.id === parsed.themeId) || defaultVizTheme();
+    const theme =
+      VIZ_THEMES.find((item) => item.id === parsed.themeId) ||
+      defaultVizTheme();
     return {
       ...theme,
       note: parsed.note || theme.note,
@@ -565,6 +572,7 @@ function updateControls() {
   ui.btnResume.hidden = !paused;
   ui.btnStop.hidden = !active;
   ui.btnExport.disabled = !canPersist;
+  if (ui.btnExportMp3) ui.btnExportMp3.disabled = !canPersist || audioExporting;
   ui.btnSaveVideo.disabled = !canPersist;
   ui.btnReset.disabled = active || !session.hasData;
 
@@ -624,7 +632,8 @@ function updateSaveButton(canPersist) {
   if (sessionSaved) {
     ui.btnSave.disabled = true;
     ui.btnSaveLabel.textContent = "Saved";
-    ui.btnSave.title = "This take is already in History. Export also saves automatically.";
+    ui.btnSave.title =
+      "This take is already in History. Export also saves automatically.";
     return;
   }
 
@@ -664,7 +673,7 @@ function updateSourceUi() {
 
 function refreshKeyLabels() {
   piano.setKeyLabels(
-    inputSource === "keyboard" ? keyboard.getNoteLabels() : new Map()
+    inputSource === "keyboard" ? keyboard.getNoteLabels() : new Map(),
   );
   ui.octaveValue.textContent = noteName(keyboard.baseNote);
 }
@@ -722,7 +731,9 @@ function pauseRecording() {
   session.pause();
   updateCounters();
   updateControls();
-  setHint("Paused — the clock keeps running as a gap. Space or Resume to continue.");
+  setHint(
+    "Paused — the clock keeps running as a gap. Space or Resume to continue.",
+  );
 }
 
 function resumeRecording() {
@@ -797,7 +808,7 @@ function saveCurrentSession() {
   const record = persistCurrentSession({ exported: false });
   if (!record) return;
   showToast(
-    `Saved ${formatCount(record.noteCount)} notes · ${formatClock(record.durationMs)}`
+    `Saved ${formatCount(record.noteCount)} notes · ${formatClock(record.durationMs)}`,
   );
   setHint("Saved to History. You can still Export .mid from this take.");
 }
@@ -811,9 +822,9 @@ function exportMidi() {
   const stamp = new Date();
   const pad = (n) => String(n).padStart(2, "0");
   const filename = `piano-session-${stamp.getFullYear()}${pad(
-    stamp.getMonth() + 1
+    stamp.getMonth() + 1,
   )}${pad(stamp.getDate())}-${pad(stamp.getHours())}${pad(
-    stamp.getMinutes()
+    stamp.getMinutes(),
   )}${pad(stamp.getSeconds())}.mid`;
 
   const bytes = buildMidiFile(session.events, {
@@ -832,13 +843,41 @@ function exportMidi() {
   showToast(
     didSave
       ? `Exported & saved · ${formatCount(session.noteCount)} notes · ${formatCount(bytes.length)} bytes`
-      : `Exported ${formatCount(session.noteCount)} notes · ${formatCount(bytes.length)} bytes`
+      : `Exported ${formatCount(session.noteCount)} notes · ${formatCount(bytes.length)} bytes`,
   );
   setHint(
     didSave
       ? "Exported .mid and saved to History."
-      : "Exported .mid. This take was already in History."
+      : "Exported .mid. This take was already in History.",
   );
+}
+
+async function exportPianoMp3() {
+  if (!session.hasData || session.active || audioExporting) {
+    if (!session.hasData) showToast("Nothing recorded yet");
+    return;
+  }
+
+  audioExporting = true;
+  updateControls();
+  try {
+    const blob = await renderPianoMp3(session.events, {
+      sampleBank: synth.samples,
+    });
+    downloadAudio(blob, `${sessionFilenameBase()}-piano.mp3`);
+    const didSave = !sessionSaved;
+    if (didSave) persistCurrentSession({ exported: true });
+    showToast(
+      didSave ? "Exported piano MP3 & saved to History" : "Exported piano MP3",
+    );
+    setHint(didSave ? "Exported .mp3 and saved to History." : "Exported .mp3.");
+  } catch (error) {
+    console.error(error);
+    showToast(error?.message || "Could not render piano MP3");
+  } finally {
+    audioExporting = false;
+    updateControls();
+  }
 }
 
 /* ----------------------------------------------------------------- settings */
@@ -942,10 +981,12 @@ function beginRebind(row, keyElement, semitone) {
   keyboard.captureNextKey(semitone, (code) => {
     if (code) {
       const next = Object.fromEntries(
-        Object.entries(keyboard.keyMap).filter(([existing]) => existing !== code)
+        Object.entries(keyboard.keyMap).filter(
+          ([existing]) => existing !== code,
+        ),
       );
       const previous = Object.entries(next).find(
-        ([, value]) => value === semitone
+        ([, value]) => value === semitone,
       );
       if (previous) delete next[previous[0]];
       next[code] = semitone;
@@ -1133,19 +1174,27 @@ function persistVizLook() {
       bg: visualizer.bgColor,
       trail: visualizer.trailStrength,
       wave: visualizer.trailWave,
-    })
+    }),
   );
 }
 
 function syncVizLookUi() {
   if (!visualizer) return;
   if (ui.vizColor) ui.vizColor.value = visualizer.color;
-  if (ui.vizBgColor) ui.vizBgColor.value = visualizer.bgColor || DEFAULT_VIZ_THEME.bg;
-  if (ui.vizTrail) ui.vizTrail.value = String(Math.round((visualizer.trailStrength ?? 0.6) * 100));
-  if (ui.vizWave) ui.vizWave.value = String(Math.round((visualizer.trailWave ?? 0.4) * 100));
+  if (ui.vizBgColor)
+    ui.vizBgColor.value = visualizer.bgColor || DEFAULT_VIZ_THEME.bg;
+  if (ui.vizTrail)
+    ui.vizTrail.value = String(
+      Math.round((visualizer.trailStrength ?? 0.6) * 100),
+    );
+  if (ui.vizWave)
+    ui.vizWave.value = String(Math.round((visualizer.trailWave ?? 0.4) * 100));
   if (ui.btnVizBgClear) ui.btnVizBgClear.hidden = !visualizer.bgImage;
   for (const btn of document.querySelectorAll(".viz__theme")) {
-    btn.classList.toggle("is-active", btn.dataset.themeId === visualizer.themeId);
+    btn.classList.toggle(
+      "is-active",
+      btn.dataset.themeId === visualizer.themeId,
+    );
   }
 }
 
@@ -1160,7 +1209,7 @@ function renderVizThemes() {
         title="${theme.label}"
         aria-label="${theme.label} theme"
         style="background:${theme.note}"
-      ></button>`
+      ></button>`,
   ).join("");
 }
 
@@ -1198,7 +1247,8 @@ function fileToVizBackground(file) {
         const dataUrl = canvas.toDataURL("image/jpeg", 0.72);
         const ready = new Image();
         ready.onload = () => resolve({ image: ready, dataUrl });
-        ready.onerror = () => reject(new Error("Could not prepare that image."));
+        ready.onerror = () =>
+          reject(new Error("Could not prepare that image."));
         ready.src = dataUrl;
       };
       img.src = String(reader.result);
@@ -1376,6 +1426,10 @@ function showHistoryDetail(record) {
   const hasEvents = Boolean(record.events?.length);
   ui.btnDetailExport.disabled = !hasEvents;
   ui.btnDetailExport.dataset.sessionId = record.id;
+  if (ui.btnDetailMp3) {
+    ui.btnDetailMp3.disabled = !hasEvents || audioExporting;
+    ui.btnDetailMp3.dataset.sessionId = record.id;
+  }
   if (ui.btnDetailVideo) {
     ui.btnDetailVideo.disabled = !hasEvents;
     ui.btnDetailVideo.dataset.sessionId = record.id;
@@ -1397,9 +1451,9 @@ function exportHistorySession(id) {
   const stamp = new Date(record.startedAt);
   const pad = (n) => String(n).padStart(2, "0");
   const filename = `piano-session-${stamp.getFullYear()}${pad(
-    stamp.getMonth() + 1
+    stamp.getMonth() + 1,
   )}${pad(stamp.getDate())}-${pad(stamp.getHours())}${pad(
-    stamp.getMinutes()
+    stamp.getMinutes(),
   )}${pad(stamp.getSeconds())}.mid`;
 
   const bytes = buildMidiFile(expandEvents(record.events), {
@@ -1410,13 +1464,38 @@ function exportHistorySession(id) {
   showToast(`Exported ${formatCount(record.noteCount)} notes from History`);
 }
 
+async function exportHistoryPianoMp3(id) {
+  const record = getSession(id);
+  if (!record?.events?.length || audioExporting) {
+    if (!record?.events?.length)
+      showToast("This session has no MIDI data to export");
+    return;
+  }
+
+  audioExporting = true;
+  showHistoryDetail(record);
+  try {
+    const blob = await renderPianoMp3(expandEvents(record.events), {
+      sampleBank: synth.samples,
+    });
+    downloadAudio(blob, `${sessionFilenameBase(record.startedAt)}-piano.mp3`);
+    showToast(`Exported piano MP3 for ${formatCount(record.noteCount)} notes`);
+  } catch (error) {
+    console.error(error);
+    showToast(error?.message || "Could not render piano MP3");
+  } finally {
+    audioExporting = false;
+    showHistoryDetail(getSession(id));
+  }
+}
+
 function sessionFilenameBase(date = new Date()) {
   const stamp = date instanceof Date ? date : new Date(date);
   const pad = (n) => String(n).padStart(2, "0");
   return `piano-session-${stamp.getFullYear()}${pad(stamp.getMonth() + 1)}${pad(
-    stamp.getDate()
+    stamp.getDate(),
   )}-${pad(stamp.getHours())}${pad(stamp.getMinutes())}${pad(
-    stamp.getSeconds()
+    stamp.getSeconds(),
   )}`;
 }
 
@@ -1451,9 +1530,13 @@ function readVideoStyleFromForm() {
     ...DEFAULT_VIDEO_STYLE,
     textMode: ui.videoTextMode?.value === "solid" ? "solid" : "gradient",
     textColor: ui.videoTextColor?.value || DEFAULT_VIDEO_STYLE.textColor,
-    textColorEnd: ui.videoTextColorEnd?.value || DEFAULT_VIDEO_STYLE.textColorEnd,
-    gradientAngle: Number(ui.videoGradientAngle?.value ?? DEFAULT_VIDEO_STYLE.gradientAngle),
-    backgroundColor: ui.videoBgColor?.value || DEFAULT_VIDEO_STYLE.backgroundColor,
+    textColorEnd:
+      ui.videoTextColorEnd?.value || DEFAULT_VIDEO_STYLE.textColorEnd,
+    gradientAngle: Number(
+      ui.videoGradientAngle?.value ?? DEFAULT_VIDEO_STYLE.gradientAngle,
+    ),
+    backgroundColor:
+      ui.videoBgColor?.value || DEFAULT_VIDEO_STYLE.backgroundColor,
   };
 }
 
@@ -1462,7 +1545,8 @@ function applyVideoStyleToForm(style) {
   if (ui.videoTextMode) ui.videoTextMode.value = s.textMode;
   if (ui.videoTextColor) ui.videoTextColor.value = s.textColor;
   if (ui.videoTextColorEnd) ui.videoTextColorEnd.value = s.textColorEnd;
-  if (ui.videoGradientAngle) ui.videoGradientAngle.value = String(s.gradientAngle);
+  if (ui.videoGradientAngle)
+    ui.videoGradientAngle.value = String(s.gradientAngle);
   if (ui.videoGradientAngleValue) {
     ui.videoGradientAngleValue.textContent = `${s.gradientAngle}°`;
   }
@@ -1482,14 +1566,17 @@ function setVideoCustomizeOpen(open) {
   if (ui.btnVideoCustomize) {
     ui.btnVideoCustomize.setAttribute("aria-expanded", open ? "true" : "false");
     ui.btnVideoCustomize.classList.toggle("is-active", open);
-    ui.btnVideoCustomize.textContent = open ? "Hide customization" : "Customization";
+    ui.btnVideoCustomize.textContent = open
+      ? "Hide customization"
+      : "Customization";
   }
 }
 
 function presetButtonHtml(preset, kind) {
   const bg = preset.backgroundColor;
   const start = preset.textColor;
-  const end = preset.textMode === "gradient" ? preset.textColorEnd : preset.textColor;
+  const end =
+    preset.textMode === "gradient" ? preset.textColorEnd : preset.textColor;
   const swatch =
     preset.textMode === "gradient"
       ? `linear-gradient(135deg, ${start}, ${end})`
@@ -1514,12 +1601,12 @@ function presetButtonHtml(preset, kind) {
 function renderVideoPresets() {
   if (ui.videoLookPresets) {
     ui.videoLookPresets.innerHTML = VIDEO_LOOK_PRESETS.map((p) =>
-      presetButtonHtml(p, "look")
+      presetButtonHtml(p, "look"),
     ).join("");
   }
   if (ui.videoGradientPresets) {
     ui.videoGradientPresets.innerHTML = VIDEO_GRADIENT_PRESETS.map((p) =>
-      presetButtonHtml(p, "gradient")
+      presetButtonHtml(p, "gradient"),
     ).join("");
   }
 }
@@ -1530,7 +1617,7 @@ function findMatchingPreset(style) {
     (p) =>
       p.textMode === s.textMode &&
       p.textColor.toLowerCase() === s.textColor.toLowerCase() &&
-      p.backgroundColor.toLowerCase() === s.backgroundColor.toLowerCase()
+      p.backgroundColor.toLowerCase() === s.backgroundColor.toLowerCase(),
   );
   if (looks) return { kind: "look", id: looks.id };
   const grads = VIDEO_GRADIENT_PRESETS.find(
@@ -1538,7 +1625,7 @@ function findMatchingPreset(style) {
       p.textMode === s.textMode &&
       p.textColor.toLowerCase() === s.textColor.toLowerCase() &&
       p.textColorEnd.toLowerCase() === s.textColorEnd.toLowerCase() &&
-      p.backgroundColor.toLowerCase() === s.backgroundColor.toLowerCase()
+      p.backgroundColor.toLowerCase() === s.backgroundColor.toLowerCase(),
   );
   if (grads) return { kind: "gradient", id: grads.id };
   return null;
@@ -1556,7 +1643,8 @@ function syncVideoPresetSelection(style) {
 }
 
 function applyVideoPreset(kind, id) {
-  const list = kind === "gradient" ? VIDEO_GRADIENT_PRESETS : VIDEO_LOOK_PRESETS;
+  const list =
+    kind === "gradient" ? VIDEO_GRADIENT_PRESETS : VIDEO_LOOK_PRESETS;
   const preset = list.find((item) => item.id === id);
   if (!preset) return;
   applyVideoStyleToForm({
@@ -1578,8 +1666,8 @@ function updateVideoPreview() {
     0,
     Math.max(
       videoEditor.durationMs,
-      sessionDurationMs(videoEditor.events, timeline)
-    ) - startOffsetMs
+      sessionDurationMs(videoEditor.events, timeline),
+    ) - startOffsetMs,
   );
   // Preview the final count with a settled hit animation.
   const count = timeline.length
@@ -1596,14 +1684,19 @@ function updateVideoPreview() {
   const frames = Math.max(1, Math.ceil((totalMs / 1000) * VIDEO_FPS) + 1);
   if (ui.videoMeta) {
     ui.videoMeta.textContent = `${VIDEO_WIDTH}×${VIDEO_HEIGHT} · ${VIDEO_FPS} fps · ${formatClock(
-      contentMs
+      contentMs,
     )} (+${formatClock(TAIL_MS)} tail) · ${formatCount(frames)} frames · ${formatCount(
-      count
+      count,
     )} notes · silent MP4`;
   }
 }
 
-async function openVideoEditor({ events, noteCount, durationMs, filenameBase }) {
+async function openVideoEditor({
+  events,
+  noteCount,
+  durationMs,
+  filenameBase,
+}) {
   if (!ui.videoModal) return;
   if (!events?.length) {
     showToast("Nothing to render yet");
@@ -1702,7 +1795,7 @@ async function startVideoRender() {
         }
         if (ui.videoProgressLabel) {
           ui.videoProgressLabel.textContent = `Frame ${formatCount(frame)} / ${formatCount(
-            totalFrames
+            totalFrames,
           )} · count ${formatCount(count)}`;
         }
       },
@@ -1714,7 +1807,8 @@ async function startVideoRender() {
   } catch (error) {
     if (error?.name === "AbortError") {
       showToast("Video export cancelled");
-      if (ui.videoProgressLabel) ui.videoProgressLabel.textContent = "Cancelled";
+      if (ui.videoProgressLabel)
+        ui.videoProgressLabel.textContent = "Cancelled";
     } else {
       console.error(error);
       showToast(error?.message || "Video export failed");
@@ -1762,7 +1856,9 @@ function renderStats() {
   ui.statsPracticeTime.textContent = formatClock(stats.totalDurationMs);
   ui.statsNotesToday.textContent = formatCount(stats.notesToday);
   ui.statsPeakNps.textContent = formatNps(stats.peakNps);
-  ui.statsAvgNotes.textContent = formatCount(Math.round(stats.avgNotesPerSession));
+  ui.statsAvgNotes.textContent = formatCount(
+    Math.round(stats.avgNotesPerSession),
+  );
   ui.statsExports.textContent = formatCount(stats.exportedCount);
   ui.statsAvgDuration.textContent = formatClock(stats.avgDurationMs);
 
@@ -1791,7 +1887,7 @@ function renderStorageUsage() {
     const percent = ((usage.bytes / usage.quotaBytes) * 100).toFixed(1);
     ui.statsStorageNote.textContent = usage.sessionCount
       ? `${percent}% of the ~5 MB browser budget · ${formatCount(
-          usage.sessionsWithEvents
+          usage.sessionsWithEvents,
         )} of ${formatCount(usage.sessionCount)} keep MIDI data`
       : "Saved on this device only";
   }
@@ -1870,7 +1966,7 @@ function bindUi() {
 
   for (const button of ui.sourceButtons) {
     button.addEventListener("click", () =>
-      setInputSource(button.dataset.source, { persist: true })
+      setInputSource(button.dataset.source, { persist: true }),
     );
   }
 
@@ -1891,6 +1987,7 @@ function bindUi() {
   ui.btnFocusResume?.addEventListener("click", resumeRecording);
   ui.btnFocusStop?.addEventListener("click", stopRecording);
   ui.btnExport.addEventListener("click", exportMidi);
+  ui.btnExportMp3?.addEventListener("click", exportPianoMp3);
   ui.btnSaveVideo?.addEventListener("click", openCurrentSessionVideo);
   ui.btnVisualize?.addEventListener("click", visualizeCurrentSession);
   ui.btnSave?.addEventListener("click", saveCurrentSession);
@@ -1912,6 +2009,9 @@ function bindUi() {
   ui.btnDetailExport?.addEventListener("click", () => {
     exportHistorySession(ui.btnDetailExport.dataset.sessionId);
   });
+  ui.btnDetailMp3?.addEventListener("click", () => {
+    exportHistoryPianoMp3(ui.btnDetailMp3.dataset.sessionId);
+  });
 
   ui.sessionEditForm?.addEventListener("submit", (event) => {
     event.preventDefault();
@@ -1932,7 +2032,7 @@ function bindUi() {
     showToast(
       updated.name?.trim()
         ? `Saved “${updated.name.trim()}”`
-        : "Saved session details"
+        : "Saved session details",
     );
   });
 
@@ -2004,7 +2104,8 @@ function bindUi() {
   });
   ui.btnVideoCancel?.addEventListener("click", () => {
     videoEditor.cancelRequested = true;
-    if (ui.videoProgressLabel) ui.videoProgressLabel.textContent = "Cancelling…";
+    if (ui.videoProgressLabel)
+      ui.videoProgressLabel.textContent = "Cancelling…";
   });
   ui.btnVideoClose?.addEventListener("click", () => {
     if (videoEditor.rendering) {
@@ -2016,7 +2117,8 @@ function bindUi() {
     if (videoEditor.rendering) {
       event.preventDefault();
       videoEditor.cancelRequested = true;
-      if (ui.videoProgressLabel) ui.videoProgressLabel.textContent = "Cancelling…";
+      if (ui.videoProgressLabel)
+        ui.videoProgressLabel.textContent = "Cancelling…";
     }
   });
   ui.videoModal?.addEventListener("close", () => {
@@ -2150,7 +2252,9 @@ function bindUi() {
     if (file.type.startsWith("image/")) {
       fileToVizBackground(file)
         .then(({ image, dataUrl }) => setVizBackgroundImage(image, dataUrl))
-        .catch((error) => showToast(error?.message || "Could not use that image"));
+        .catch((error) =>
+          showToast(error?.message || "Could not use that image"),
+        );
       return;
     }
     visualizeMidiFile(file);
@@ -2177,7 +2281,10 @@ function bindUi() {
     } else if (event.code === "Escape" && focusViewOpen) {
       event.preventDefault();
       setFocusView(false);
-    } else if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "e") {
+    } else if (
+      (event.metaKey || event.ctrlKey) &&
+      event.key.toLowerCase() === "e"
+    ) {
       event.preventDefault();
       exportMidi();
     }

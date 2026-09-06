@@ -1,14 +1,19 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en" data-theme="light">
   <head>
     <!-- Google tag (gtag.js) -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-24448W7H6J"></script>
+    <script
+      async
+      src="https://www.googletagmanager.com/gtag/js?id=G-24448W7H6J"
+    ></script>
     <script>
       window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
+      function gtag() {
+        dataLayer.push(arguments);
+      }
+      gtag("js", new Date());
 
-      gtag('config', 'G-24448W7H6J');
+      gtag("config", "G-24448W7H6J");
     </script>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -46,787 +51,927 @@
       <div class="app__glow" aria-hidden="true"></div>
 
       <div class="app__body">
-      <header class="header">
-        <div class="header__start">
-        <a class="header__brand" href="index.html" title="Peak Notes home">
-          <div class="header__mark" aria-hidden="true">
-            <svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
-              <g class="mark-white">
-                <rect x="5" y="6.5" width="6.4" height="19" rx="1.5" />
-                <rect x="12.8" y="6.5" width="6.4" height="19" rx="1.5" />
-                <rect x="20.6" y="6.5" width="6.4" height="19" rx="1.5" />
-              </g>
-              <g class="mark-black">
-                <rect x="10" y="6.5" width="4.2" height="11.5" rx="1.3" />
-                <rect x="17.8" y="6.5" width="4.2" height="11.5" rx="1.3" />
-              </g>
-            </svg>
-          </div>
-          <div>
-            <div class="header__title">Peak Notes</div>
-            <div class="header__subtitle">Live note counter · MIDI visualizer</div>
-          </div>
-        </a>
-
-        <nav class="nav nav--mode" aria-label="App mode">
-          <button class="nav__item is-active" data-mode="studio" type="button">
-            <svg viewBox="0 0 24 24" aria-hidden="true">
-              <rect x="3" y="8" width="18" height="11" rx="1.6" />
-              <path d="M7.2 8v5.4M10.8 8v5.4M14.4 8v5.4M18 8v5.4" />
-              <path d="M3 14.6h18" />
-            </svg>
-            Studio
-          </button>
-          <button class="nav__item" data-mode="visualize" type="button">
-            <svg viewBox="0 0 24 24" aria-hidden="true">
-              <path d="M12 3.4A8.6 8.6 0 0 0 12 20.6c.7 0 1.1-.62.85-1.24-.28-.66.12-1.36.82-1.36h1.55A5.4 5.4 0 0 0 20.6 12 8.6 8.6 0 0 0 12 3.4z" />
-              <circle cx="8.1" cy="11.2" r="1.05" />
-              <circle cx="10.4" cy="7.9" r="1.05" />
-              <circle cx="14.5" cy="8.1" r="1.05" />
-              <circle cx="16.6" cy="11.4" r="1.05" />
-            </svg>
-            Visualize
-          </button>
-        </nav>
-        </div>
-
-        <nav class="nav" aria-label="Library">
-          <button class="nav__item" data-view="history" type="button">History</button>
-          <button class="nav__item" data-view="stats" type="button">Stats</button>
-          <button class="nav__item" data-view="about" type="button">About</button>
-        </nav>
-
-        <div class="header__actions">
-          <div class="header__tool-row">
-            <button
-              class="icon-btn"
-              id="btnSettings"
-              type="button"
-              aria-label="Settings"
-              title="Settings"
-            >
-              <svg viewBox="0 0 24 24" aria-hidden="true">
-                <circle cx="12" cy="12" r="3" />
-                <path
-                  d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.6 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.6a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9c.14.63.7 1.09 1.35 1.09H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"
-                />
-              </svg>
-            </button>
-            <button
-              class="icon-btn"
-              id="themeToggle"
-              type="button"
-              aria-label="Toggle theme"
-              title="Toggle theme"
-            >
-              <svg class="icon-moon" viewBox="0 0 24 24" aria-hidden="true">
-                <path d="M21 14.5A8.5 8.5 0 1 1 9.5 3 7 7 0 0 0 21 14.5z" />
-              </svg>
-              <svg class="icon-sun" viewBox="0 0 24 24" aria-hidden="true">
-                <circle cx="12" cy="12" r="4" />
-                <path
-                  d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"
-                />
-              </svg>
-            </button>
-            <label
-              class="switch header__pedal-switch"
-              title="Pedal count — tally notes while the damper is held. Lift the pedal to reset."
-            >
-              <input type="checkbox" id="pedalCountToggle" />
-              <span class="switch__track"><span class="switch__thumb"></span></span>
-              <span class="switch__text">Pedal count</span>
-            </label>
-          </div>
-        </div>
-      </header>
-
-      <main class="main" id="viewDashboard">
-        <div class="status-bar">
-          <div class="segmented" role="group" aria-label="Input source">
-            <button
-              class="segmented__item"
-              data-source="midi"
-              type="button"
-              title="Instrument only — typing will not add notes"
-            >
-              MIDI Device
-            </button>
-            <button
-              class="segmented__item is-active"
-              data-source="keyboard"
-              type="button"
-              title="Play with QWERTY. A connected instrument still works."
-            >
-              Computer Keyboard
-            </button>
-          </div>
-
-          <div class="status-bar__pill">
-            <span class="status-bar__dot" id="midiDot"></span>
-            <span id="midiStatus">Checking MIDI…</span>
-          </div>
-
-          <select
-            class="status-bar__device"
-            id="deviceSelect"
-            aria-label="MIDI input device"
-            disabled
-          >
-            <option value="">No devices</option>
-          </select>
-
-          <div class="status-bar__pill status-bar__pill--rec" id="recordingPill" hidden>
-            <span class="status-bar__dot status-bar__dot--recording" id="recordingDot"></span>
-            <span id="recordingLabel">Recording</span>
-          </div>
-        </div>
-
-        <section class="hero-counter" aria-live="polite">
-          <div class="hero-counter__label" id="heroCounterLabel">Notes Played</div>
-          <div class="hero-counter__value" id="noteCount">0</div>
-          <div class="hero-counter__foot">
-            <p class="hero-counter__hint" id="heroHint">
-              Press Record, then play your keyboard.
-            </p>
-            <button
-              class="expand-btn"
-              id="btnFocusEnter"
-              type="button"
-              aria-label="Open focus view"
-              title="Focus view — giant counter"
-            >
-              <svg viewBox="0 0 24 24" aria-hidden="true">
-                <path
-                  d="M9 4H4v5M15 4h5v5M9 20H4v-5M15 20h5v-5"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="1.9"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                />
-              </svg>
-            </button>
-          </div>
-        </section>
-
-        <section class="stats" aria-label="Session statistics">
-          <article class="stat-card">
-            <div class="stat-card__label">Total Notes</div>
-            <div class="stat-card__value" id="statTotal">0</div>
-          </article>
-          <article class="stat-card">
-            <div class="stat-card__label">Notes / Sec</div>
-            <div class="stat-card__value">
-              <span id="statNps">0.0</span><span class="stat-card__unit">nps</span>
-            </div>
-          </article>
-          <article class="stat-card">
-            <div class="stat-card__label">Peak NPS</div>
-            <div class="stat-card__value">
-              <span id="statPeakNps">0.0</span><span class="stat-card__unit">nps</span>
-            </div>
-          </article>
-          <article class="stat-card">
-            <div class="stat-card__label">Elapsed</div>
-            <div class="stat-card__value" id="statElapsed">0:00.0</div>
-          </article>
-        </section>
-
-        <div class="controls">
-          <div class="controls__record-stack" id="recordStack">
-            <button class="btn btn--primary" id="btnRecord" type="button">
-              <svg viewBox="0 0 16 16" aria-hidden="true">
-                <circle cx="8" cy="8" r="5" />
-              </svg>
-              Record
-            </button>
-            <button
-              class="btn btn--secondary btn--sm"
-              id="btnVisualize"
-              type="button"
-              hidden
-              title="Open this take in the MIDI visualizer"
-            >
-              <svg viewBox="0 0 16 16" aria-hidden="true">
-                <path
-                  d="M3 3v7M6 5v5M9 4v6M12 6v4M2 13h12"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="1.5"
-                  stroke-linecap="round"
-                />
-              </svg>
-              Visualize MIDI
-            </button>
-          </div>
-          <button class="btn btn--secondary" id="btnPause" type="button" hidden>
-            <svg viewBox="0 0 16 16" aria-hidden="true">
-              <rect x="4" y="3.5" width="2.75" height="9" rx="0.75" />
-              <rect x="9.25" y="3.5" width="2.75" height="9" rx="0.75" />
-            </svg>
-            Pause
-          </button>
-          <button class="btn btn--primary" id="btnResume" type="button" hidden>
-            <svg viewBox="0 0 16 16" aria-hidden="true">
-              <path d="M5 3.5v9l8-4.5-8-4.5z" fill="currentColor" />
-            </svg>
-            Resume
-          </button>
-          <button class="btn btn--danger" id="btnStop" type="button" hidden>
-            <svg viewBox="0 0 16 16" aria-hidden="true">
-              <rect x="4" y="4" width="8" height="8" rx="1.5" />
-            </svg>
-            Stop
-          </button>
-          <button class="btn btn--secondary" id="btnExport" type="button" disabled>
-            <svg viewBox="0 0 16 16" aria-hidden="true">
-              <path
-                d="M8 2.5v7M5.5 7.5 8 10l2.5-2.5M3 12.5h10"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="1.6"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              />
-            </svg>
-            Export .mid
-          </button>
-          <button
-            class="btn btn--secondary"
-            id="btnSaveVideo"
-            type="button"
-            disabled
-            title="Render a silent counter video as MP4"
-          >
-            <svg viewBox="0 0 16 16" aria-hidden="true">
-              <path
-                d="M2.5 4.25h7.5v7.5H2.5V4.25zm8.25 1.5L13.5 4v8l-2.75-1.75V5.75z"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="1.4"
-                stroke-linejoin="round"
-              />
-            </svg>
-            Save Video
-          </button>
-          <button
-            class="btn btn--secondary"
-            id="btnSave"
-            type="button"
-            disabled
-            title="Save this session to History"
-          >
-            <svg viewBox="0 0 16 16" aria-hidden="true">
-              <path
-                d="M3.5 2.5h7.2L12.5 4.3V13.5H3.5V2.5zm2 0v3.2h5.2V2.5M5 9.5h6"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="1.5"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              />
-            </svg>
-            <span id="btnSaveLabel">Save</span>
-          </button>
-          <button class="btn btn--ghost" id="btnReset" type="button" disabled>
-            Reset
-          </button>
-        </div>
-
-        <section class="piano-panel" aria-label="Keyboard">
-          <div class="piano-panel__bar">
-            <div class="now-playing">
-              <span class="now-playing__label">Now playing</span>
-              <span class="now-playing__value" id="nowPlaying">—</span>
-            </div>
-
-            <div class="voice-select">
-              <label class="voice-select__label" for="voiceSelect">Voice</label>
-              <select id="voiceSelect" class="voice-select__control" aria-label="Instrument voice">
-                <option value="piano">Grand Piano</option>
-                <option value="steinway">Steinway</option>
-                <option value="cinematic">Cinematic Piano</option>
-                <option value="harpsichord">Harpsichord</option>
-                <option value="epiano">Electric Piano</option>
-                <option value="eguitar">Electric Guitar</option>
-                <option value="eighties">80s Synth</option>
-              </select>
-            </div>
-
-            <div class="octave">
-              <span class="octave__label">Octave</span>
-              <button class="octave__btn" id="btnOctaveDown" type="button" title="Z">
-                −
-              </button>
-              <span class="octave__value" id="octaveValue">C4</span>
-              <button class="octave__btn" id="btnOctaveUp" type="button" title="X">
-                +
-              </button>
-            </div>
-
-            <label class="switch">
-              <input type="checkbox" id="soundToggle" checked />
-              <span class="switch__track"><span class="switch__thumb"></span></span>
-              <span class="switch__text">Sound</span>
-            </label>
-          </div>
-
-          <div class="piano-scroller">
-            <div class="piano" id="piano"></div>
-          </div>
-
-          <p class="piano-panel__hint" id="pianoHint">
-            Home row <kbd>A</kbd>–<kbd>'</kbd> plays white keys, the row above plays
-            the black keys. <kbd>Z</kbd> / <kbd>X</kbd> shift octaves.
-          </p>
-        </section>
-      </main>
-
-      <main class="main main--viz" id="viewVisualizer" hidden>
-        <div class="viz" id="vizRoot">
-          <div class="viz__empty" id="vizEmpty">
-            <label class="viz__drop" id="vizDrop" for="vizFile">
-              <div class="viz__drop-title">Drop a MIDI file</div>
-              <p class="viz__drop-copy">
-                Visualize a <code>.mid</code> from your computer, or pick a saved take
-                below. Notes fall onto a glowing keyboard — play, pause, and scrub.
-              </p>
-              <input
-                class="viz__file"
-                id="vizFile"
-                type="file"
-                accept=".mid,.midi,audio/midi,audio/x-midi"
-              />
-            </label>
-            <div class="viz__history">
-              <div class="viz__history-label">From History</div>
-              <div class="viz__takes" id="vizTakes"></div>
-            </div>
-          </div>
-
-          <div class="viz__stage" id="vizStage" hidden>
-            <canvas class="viz__canvas" id="vizCanvas"></canvas>
-            <div class="viz__toolbar">
-              <div class="viz__title" id="vizTitle">Untitled</div>
-              <div class="viz__look">
-                <div class="viz__themes" id="vizThemes" role="list" aria-label="Visualizer themes"></div>
-                <label class="viz__swatch" title="Note color">
-                  <span>Notes</span>
-                  <input
-                    class="viz__color"
-                    id="vizColor"
-                    type="color"
-                    value="#60a5fa"
-                    aria-label="Note color"
-                  />
-                </label>
-                <label class="viz__swatch" title="Background color">
-                  <span>Background</span>
-                  <input
-                    class="viz__color"
-                    id="vizBgColor"
-                    type="color"
-                    value="#05060a"
-                    aria-label="Background color"
-                  />
-                </label>
-                <label class="viz__dial" title="Particle trail strength">
-                  <span>Trails</span>
-                  <input
-                    id="vizTrail"
-                    type="range"
-                    min="0"
-                    max="100"
-                    value="60"
-                    aria-label="Particle trail strength"
-                  />
-                </label>
-                <label class="viz__dial" title="Trail waviness">
-                  <span>Wave</span>
-                  <input
-                    id="vizWave"
-                    type="range"
-                    min="0"
-                    max="100"
-                    value="40"
-                    aria-label="Trail waviness"
-                  />
-                </label>
-                <label class="viz__swatch viz__swatch--file" title="Set a background image">
-                  <span>Image</span>
-                  <input
-                    id="vizBgImage"
-                    type="file"
-                    accept="image/*"
-                    aria-label="Background image"
-                  />
-                </label>
-                <button
-                  class="btn btn--ghost btn--sm"
-                  id="btnVizBgClear"
-                  type="button"
-                  hidden
-                >
-                  Clear image
-                </button>
-                <button
-                  class="viz__chip"
-                  id="btnVizLoad"
-                  type="button"
-                  title="Load another MIDI file"
-                >
-                  <svg viewBox="0 0 24 24" aria-hidden="true">
-                    <path
-                      fill="currentColor"
-                      d="M19.5 21a3 3 0 0 0 3-3v-9a3 3 0 0 0-3-3h-5.379a.75.75 0 0 1-.53-.22L11.47 3.66A3 3 0 0 0 9.379 3H4.5a3 3 0 0 0-3 3v12a3 3 0 0 0 3 3h15Z"
-                    />
-                  </svg>
-                  Load another
-                </button>
+        <header class="header">
+          <div class="header__start">
+            <a class="header__brand" href="index.html" title="Peak Notes home">
+              <div class="header__mark" aria-hidden="true">
+                <svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
+                  <g class="mark-white">
+                    <rect x="5" y="6.5" width="6.4" height="19" rx="1.5" />
+                    <rect x="12.8" y="6.5" width="6.4" height="19" rx="1.5" />
+                    <rect x="20.6" y="6.5" width="6.4" height="19" rx="1.5" />
+                  </g>
+                  <g class="mark-black">
+                    <rect x="10" y="6.5" width="4.2" height="11.5" rx="1.3" />
+                    <rect x="17.8" y="6.5" width="4.2" height="11.5" rx="1.3" />
+                  </g>
+                </svg>
               </div>
-            </div>
-            <div class="viz__transport">
+              <div>
+                <div class="header__title">Peak Notes</div>
+                <div class="header__subtitle">
+                  Live note counter · MIDI visualizer
+                </div>
+              </div>
+            </a>
+
+            <nav class="nav nav--mode" aria-label="App mode">
               <button
-                class="icon-btn icon-btn--fill"
-                id="btnVizRestart"
+                class="nav__item is-active"
+                data-mode="studio"
                 type="button"
-                aria-label="Restart"
-                title="Restart"
+              >
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <rect x="3" y="8" width="18" height="11" rx="1.6" />
+                  <path d="M7.2 8v5.4M10.8 8v5.4M14.4 8v5.4M18 8v5.4" />
+                  <path d="M3 14.6h18" />
+                </svg>
+                Studio
+              </button>
+              <button class="nav__item" data-mode="visualize" type="button">
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <path
+                    d="M12 3.4A8.6 8.6 0 0 0 12 20.6c.7 0 1.1-.62.85-1.24-.28-.66.12-1.36.82-1.36h1.55A5.4 5.4 0 0 0 20.6 12 8.6 8.6 0 0 0 12 3.4z"
+                  />
+                  <circle cx="8.1" cy="11.2" r="1.05" />
+                  <circle cx="10.4" cy="7.9" r="1.05" />
+                  <circle cx="14.5" cy="8.1" r="1.05" />
+                  <circle cx="16.6" cy="11.4" r="1.05" />
+                </svg>
+                Visualize
+              </button>
+            </nav>
+          </div>
+
+          <nav class="nav" aria-label="Library">
+            <button class="nav__item" data-view="history" type="button">
+              History
+            </button>
+            <button class="nav__item" data-view="stats" type="button">
+              Stats
+            </button>
+            <button class="nav__item" data-view="about" type="button">
+              About
+            </button>
+          </nav>
+
+          <div class="header__actions">
+            <div class="header__tool-row">
+              <button
+                class="icon-btn"
+                id="btnSettings"
+                type="button"
+                aria-label="Settings"
+                title="Settings"
+              >
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <circle cx="12" cy="12" r="3" />
+                  <path
+                    d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.6 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.6a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9c.14.63.7 1.09 1.35 1.09H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"
+                  />
+                </svg>
+              </button>
+              <button
+                class="icon-btn"
+                id="themeToggle"
+                type="button"
+                aria-label="Toggle theme"
+                title="Toggle theme"
+              >
+                <svg class="icon-moon" viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M21 14.5A8.5 8.5 0 1 1 9.5 3 7 7 0 0 0 21 14.5z" />
+                </svg>
+                <svg class="icon-sun" viewBox="0 0 24 24" aria-hidden="true">
+                  <circle cx="12" cy="12" r="4" />
+                  <path
+                    d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"
+                  />
+                </svg>
+              </button>
+              <label
+                class="switch header__pedal-switch"
+                title="Pedal count — tally notes while the damper is held. Lift the pedal to reset."
+              >
+                <input type="checkbox" id="pedalCountToggle" />
+                <span class="switch__track"
+                  ><span class="switch__thumb"></span
+                ></span>
+                <span class="switch__text">Pedal count</span>
+              </label>
+            </div>
+          </div>
+        </header>
+
+        <main class="main" id="viewDashboard">
+          <div class="status-bar">
+            <div class="segmented" role="group" aria-label="Input source">
+              <button
+                class="segmented__item"
+                data-source="midi"
+                type="button"
+                title="Instrument only — typing will not add notes"
+              >
+                MIDI Device
+              </button>
+              <button
+                class="segmented__item is-active"
+                data-source="keyboard"
+                type="button"
+                title="Play with QWERTY. A connected instrument still works."
+              >
+                Computer Keyboard
+              </button>
+            </div>
+
+            <div class="status-bar__pill">
+              <span class="status-bar__dot" id="midiDot"></span>
+              <span id="midiStatus">Checking MIDI…</span>
+            </div>
+
+            <select
+              class="status-bar__device"
+              id="deviceSelect"
+              aria-label="MIDI input device"
+              disabled
+            >
+              <option value="">No devices</option>
+            </select>
+
+            <div
+              class="status-bar__pill status-bar__pill--rec"
+              id="recordingPill"
+              hidden
+            >
+              <span
+                class="status-bar__dot status-bar__dot--recording"
+                id="recordingDot"
+              ></span>
+              <span id="recordingLabel">Recording</span>
+            </div>
+          </div>
+
+          <section class="hero-counter" aria-live="polite">
+            <div class="hero-counter__label" id="heroCounterLabel">
+              Notes Played
+            </div>
+            <div class="hero-counter__value" id="noteCount">0</div>
+            <div class="hero-counter__foot">
+              <p class="hero-counter__hint" id="heroHint">
+                Press Record, then play your keyboard.
+              </p>
+              <button
+                class="expand-btn"
+                id="btnFocusEnter"
+                type="button"
+                aria-label="Open focus view"
+                title="Focus view — giant counter"
               >
                 <svg viewBox="0 0 24 24" aria-hidden="true">
                   <path
-                    fill="currentColor"
-                    d="M4.755 10.059a7.5 7.5 0 0 1 12.548-3.364l1.903 1.903h-3.183a.75.75 0 1 0 0 1.5h4.992a.75.75 0 0 0 .75-.75V4.356a.75.75 0 0 0-1.5 0v3.18l-1.9-1.9A9 9 0 0 0 3.306 9.67a.75.75 0 1 0 1.45.388Zm15.408 3.352a.75.75 0 0 0-.919.53 7.5 7.5 0 0 1-12.548 3.364l-1.902-1.903h3.183a.75.75 0 0 0 0-1.5H2.984a.75.75 0 0 0-.75.75v4.992a.75.75 0 0 0 1.5 0v-3.18l1.9 1.9a9 9 0 0 0 15.059-4.035.75.75 0 0 0-.53-.918Z"
+                    d="M9 4H4v5M15 4h5v5M9 20H4v-5M15 20h5v-5"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.9"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
                   />
                 </svg>
               </button>
-              <button
-                class="icon-btn icon-btn--fill"
-                id="btnVizPlay"
-                type="button"
-                aria-label="Play"
-                title="Play (Space)"
-              >
-                <svg id="vizPlayIcon" viewBox="0 0 24 24" aria-hidden="true">
-                  <path d="M8 5.2v13.6L19.2 12 8 5.2z" fill="currentColor" />
-                </svg>
-              </button>
-              <input
-                class="viz__seek"
-                id="vizSeek"
-                type="range"
-                min="0"
-                max="1000"
-                value="0"
-                aria-label="Scrub timeline"
-              />
-              <div class="viz__time" id="vizTime">0:00 / 0:00</div>
             </div>
-          </div>
-        </div>
-      </main>
+          </section>
 
-      <main class="main main--doc" id="viewHistory" hidden>
-        <section class="library">
-          <header class="library__head">
-            <div>
-              <span class="doc__eyebrow">History</span>
-              <h1 class="library__title">Saved sessions</h1>
-              <p class="library__lead">
-                Every Save or Export lands here. Click a session for the full breakdown.
-              </p>
-            </div>
-            <button class="btn btn--ghost btn--sm" id="btnClearHistory" type="button">
-              Clear all
-            </button>
-          </header>
-
-          <div class="library__layout">
-            <div class="session-list" id="historyList" role="list"></div>
-            <aside class="session-detail" id="historyDetail">
-              <div class="session-detail__empty" id="historyDetailEmpty">
-                Select a session to see notes, duration, voice, and more.
-              </div>
-              <div class="session-detail__body" id="historyDetailBody" hidden>
-                <div class="session-detail__date" id="detailDate"></div>
-                <h2 class="session-detail__title" id="detailTitle"></h2>
-                <p class="session-detail__desc" id="detailDescription" hidden></p>
-
-                <form class="session-edit" id="sessionEditForm">
-                  <label class="session-edit__field">
-                    <span class="session-edit__label">Name</span>
-                    <input
-                      type="text"
-                      id="detailNameInput"
-                      class="session-edit__input"
-                      maxlength="80"
-                      autocomplete="off"
-                      placeholder="Leave blank to use the date"
-                    />
-                  </label>
-                  <label class="session-edit__field">
-                    <span class="session-edit__label">Description</span>
-                    <textarea
-                      id="detailDescriptionInput"
-                      class="session-edit__textarea"
-                      maxlength="400"
-                      rows="3"
-                      placeholder="Optional notes about this take"
-                    ></textarea>
-                  </label>
-                  <div class="session-edit__actions">
-                    <button
-                      class="btn btn--secondary btn--sm"
-                      id="btnDetailSaveMeta"
-                      type="submit"
-                    >
-                      Save details
-                    </button>
-                  </div>
-                </form>
-
-                <div class="session-detail__grid" id="detailGrid"></div>
-                <div class="session-detail__actions">
-                  <button class="btn btn--secondary btn--sm" id="btnDetailExport" type="button">
-                    Export .mid
-                  </button>
-                  <button class="btn btn--secondary btn--sm" id="btnDetailVideo" type="button">
-                    Save Video
-                  </button>
-                  <button class="btn btn--secondary btn--sm" id="btnDetailVisualize" type="button">
-                    Visualize
-                  </button>
-                  <button class="btn btn--ghost btn--sm" id="btnDetailDelete" type="button">
-                    Delete
-                  </button>
-                </div>
-              </div>
-            </aside>
-          </div>
-        </section>
-      </main>
-
-      <main class="main main--doc" id="viewStats" hidden>
-        <section class="library">
-          <header class="library__head">
-            <div>
-              <span class="doc__eyebrow">Stats</span>
-              <h1 class="library__title">Practice totals</h1>
-              <p class="library__lead">
-                Aggregated from every session you have saved.
-              </p>
-            </div>
-          </header>
-
-          <div class="stats-hero" id="statsSince">
-            <div class="stats-hero__label">Time since last save</div>
-            <div class="stats-hero__value" id="statsSinceValue">—</div>
-            <div class="stats-hero__sub" id="statsSinceSub">No sessions saved yet</div>
-          </div>
-
-          <div class="stats library-stats" aria-label="Lifetime statistics">
+          <section class="stats" aria-label="Session statistics">
             <article class="stat-card">
               <div class="stat-card__label">Total Notes</div>
-              <div class="stat-card__value" id="statsTotalNotes">0</div>
+              <div class="stat-card__value" id="statTotal">0</div>
             </article>
             <article class="stat-card">
-              <div class="stat-card__label">Sessions</div>
-              <div class="stat-card__value" id="statsSessionCount">0</div>
-            </article>
-            <article class="stat-card">
-              <div class="stat-card__label">Practice Time</div>
-              <div class="stat-card__value" id="statsPracticeTime">0:00</div>
-            </article>
-            <article class="stat-card">
-              <div class="stat-card__label">Notes Today</div>
-              <div class="stat-card__value" id="statsNotesToday">0</div>
-            </article>
-            <article class="stat-card">
-              <div class="stat-card__label">Lifetime Peak NPS</div>
+              <div class="stat-card__label">Notes / Sec</div>
               <div class="stat-card__value">
-                <span id="statsPeakNps">0.0</span
+                <span id="statNps">0.0</span
                 ><span class="stat-card__unit">nps</span>
               </div>
             </article>
             <article class="stat-card">
-              <div class="stat-card__label">Avg Notes / Session</div>
-              <div class="stat-card__value" id="statsAvgNotes">0</div>
-            </article>
-            <article class="stat-card">
-              <div class="stat-card__label">Exports</div>
-              <div class="stat-card__value" id="statsExports">0</div>
-            </article>
-            <article class="stat-card">
-              <div class="stat-card__label">Avg Duration</div>
-              <div class="stat-card__value" id="statsAvgDuration">0:00</div>
-            </article>
-            <article class="stat-card">
-              <div class="stat-card__label">Storage Used</div>
-              <div class="stat-card__value" id="statsStorage">0 KB</div>
-              <div class="stat-card__note" id="statsStorageNote">
-                Saved on this device only
+              <div class="stat-card__label">Peak NPS</div>
+              <div class="stat-card__value">
+                <span id="statPeakNps">0.0</span
+                ><span class="stat-card__unit">nps</span>
               </div>
             </article>
+            <article class="stat-card">
+              <div class="stat-card__label">Elapsed</div>
+              <div class="stat-card__value" id="statElapsed">0:00.0</div>
+            </article>
+          </section>
+
+          <div class="controls">
+            <div class="controls__record-stack" id="recordStack">
+              <button class="btn btn--primary" id="btnRecord" type="button">
+                <svg viewBox="0 0 16 16" aria-hidden="true">
+                  <circle cx="8" cy="8" r="5" />
+                </svg>
+                Record
+              </button>
+              <button
+                class="btn btn--secondary btn--sm"
+                id="btnVisualize"
+                type="button"
+                hidden
+                title="Open this take in the MIDI visualizer"
+              >
+                <svg viewBox="0 0 16 16" aria-hidden="true">
+                  <path
+                    d="M3 3v7M6 5v5M9 4v6M12 6v4M2 13h12"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.5"
+                    stroke-linecap="round"
+                  />
+                </svg>
+                Visualize MIDI
+              </button>
+            </div>
+            <button
+              class="btn btn--secondary"
+              id="btnPause"
+              type="button"
+              hidden
+            >
+              <svg viewBox="0 0 16 16" aria-hidden="true">
+                <rect x="4" y="3.5" width="2.75" height="9" rx="0.75" />
+                <rect x="9.25" y="3.5" width="2.75" height="9" rx="0.75" />
+              </svg>
+              Pause
+            </button>
+            <button
+              class="btn btn--primary"
+              id="btnResume"
+              type="button"
+              hidden
+            >
+              <svg viewBox="0 0 16 16" aria-hidden="true">
+                <path d="M5 3.5v9l8-4.5-8-4.5z" fill="currentColor" />
+              </svg>
+              Resume
+            </button>
+            <button class="btn btn--danger" id="btnStop" type="button" hidden>
+              <svg viewBox="0 0 16 16" aria-hidden="true">
+                <rect x="4" y="4" width="8" height="8" rx="1.5" />
+              </svg>
+              Stop
+            </button>
+            <button
+              class="btn btn--secondary"
+              id="btnExport"
+              type="button"
+              disabled
+            >
+              <svg viewBox="0 0 16 16" aria-hidden="true">
+                <path
+                  d="M8 2.5v7M5.5 7.5 8 10l2.5-2.5M3 12.5h10"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="1.6"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                />
+              </svg>
+              Export .mid
+            </button>
+            <button
+              class="btn btn--secondary"
+              id="btnExportMp3"
+              type="button"
+              disabled
+            >
+              <svg viewBox="0 0 16 16" aria-hidden="true">
+                <path
+                  d="M8 2.5v7M5.5 7.5 8 10l2.5-2.5M3 12.5h10"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="1.6"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                />
+              </svg>
+              Export .mp3
+            </button>
+            <button
+              class="btn btn--secondary"
+              id="btnSaveVideo"
+              type="button"
+              disabled
+              title="Render a silent counter video as MP4"
+            >
+              <svg viewBox="0 0 16 16" aria-hidden="true">
+                <path
+                  d="M2.5 4.25h7.5v7.5H2.5V4.25zm8.25 1.5L13.5 4v8l-2.75-1.75V5.75z"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="1.4"
+                  stroke-linejoin="round"
+                />
+              </svg>
+              Save Video
+            </button>
+            <button
+              class="btn btn--secondary"
+              id="btnSave"
+              type="button"
+              disabled
+              title="Save this session to History"
+            >
+              <svg viewBox="0 0 16 16" aria-hidden="true">
+                <path
+                  d="M3.5 2.5h7.2L12.5 4.3V13.5H3.5V2.5zm2 0v3.2h5.2V2.5M5 9.5h6"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="1.5"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                />
+              </svg>
+              <span id="btnSaveLabel">Save</span>
+            </button>
+            <button class="btn btn--ghost" id="btnReset" type="button" disabled>
+              Reset
+            </button>
           </div>
-        </section>
-      </main>
 
-      <main class="main main--doc" id="viewAbout" hidden>
-        <section class="doc">
-          <span class="doc__eyebrow">About</span>
-          <h1 class="doc__title">Count every note. Keep every take.</h1>
-          <p class="doc__lead">
-            Peak Notes is a browser studio for pianists — capture over USB MIDI or
-            your computer keyboard, watch a live counter built for practice and
-            screen recording, then export a Standard MIDI File, a silent counter
-            video, or drop the take onto a glowing visualizer. Your history stays
-            on this device.
-          </p>
+          <section class="piano-panel" aria-label="Keyboard">
+            <div class="piano-panel__bar">
+              <div class="now-playing">
+                <span class="now-playing__label">Now playing</span>
+                <span class="now-playing__value" id="nowPlaying">—</span>
+              </div>
 
-          <div class="doc__grid">
-            <article class="doc-card">
-              <h2 class="doc-card__title">Two ways to play</h2>
-              <p>
-                Plug in a MIDI instrument such as the Yamaha P-145BT and it is
-                detected automatically — it always plays and records. The source
-                toggle decides whether the <strong>computer keyboard</strong> is also
-                live, so switch to <strong>MIDI Device</strong> when you want typing
-                to stay silent. Sustain pedal (CC64) keeps notes ringing under the
-                damper.
-              </p>
-            </article>
+              <div class="voice-select">
+                <label class="voice-select__label" for="voiceSelect"
+                  >Voice</label
+                >
+                <select
+                  id="voiceSelect"
+                  class="voice-select__control"
+                  aria-label="Instrument voice"
+                >
+                  <option value="piano">Grand Piano</option>
+                  <option value="steinway">Steinway</option>
+                  <option value="cinematic">Cinematic Piano</option>
+                  <option value="harpsichord">Harpsichord</option>
+                  <option value="epiano">Electric Piano</option>
+                  <option value="eguitar">Electric Guitar</option>
+                  <option value="eighties">80s Synth</option>
+                </select>
+              </div>
 
-            <article class="doc-card">
-              <h2 class="doc-card__title">Accurate export</h2>
-              <p>
-                Sessions are written as SMF Format 1 at 480 PPQN with a dedicated
-                tempo track. Held notes are closed automatically and leading silence
-                is trimmed so the roll starts on your first note.
-              </p>
-            </article>
+              <div class="octave">
+                <span class="octave__label">Octave</span>
+                <button
+                  class="octave__btn"
+                  id="btnOctaveDown"
+                  type="button"
+                  title="Z"
+                >
+                  −
+                </button>
+                <span class="octave__value" id="octaveValue">C4</span>
+                <button
+                  class="octave__btn"
+                  id="btnOctaveUp"
+                  type="button"
+                  title="X"
+                >
+                  +
+                </button>
+              </div>
 
-            <article class="doc-card">
-              <h2 class="doc-card__title">Built for capture</h2>
-              <p>
-                A large live counter, notes per second, peak NPS, elapsed time, and a
-                Focus view sized for the room. Pause preserves silence in the
-                timeline. Dark and light themes are included.
-              </p>
-            </article>
+              <label class="switch">
+                <input type="checkbox" id="soundToggle" checked />
+                <span class="switch__track"
+                  ><span class="switch__thumb"></span
+                ></span>
+                <span class="switch__text">Sound</span>
+              </label>
+            </div>
 
-            <article class="doc-card">
-              <h2 class="doc-card__title">Your mapping</h2>
-              <p>
-                The QWERTY layout follows the familiar Virtual Piano arrangement, and
-                every key can be rebound from the settings panel. Preferences persist
-                between sessions.
-              </p>
-            </article>
-          </div>
+            <div class="piano-scroller">
+              <div class="piano" id="piano"></div>
+            </div>
 
-          <h2 class="doc__section">Keyboard layout</h2>
-          <p class="doc__body">
-            The home row plays white keys left to right starting at Middle C, and the
-            row above holds the black keys in their natural gaps.
-          </p>
-          <div class="doc__keys">
-            <div><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd><kbd>F</kbd><kbd>G</kbd><kbd>H</kbd><kbd>J</kbd><kbd>K</kbd><kbd>L</kbd><kbd>;</kbd><kbd>'</kbd><span>White keys</span></div>
-            <div><kbd>W</kbd><kbd>E</kbd><kbd>T</kbd><kbd>Y</kbd><kbd>U</kbd><kbd>O</kbd><kbd>P</kbd><span>Black keys</span></div>
-            <div><kbd>Z</kbd><kbd>X</kbd><span>Octave down / up (arrow keys work too)</span></div>
-            <div><kbd>Space</kbd><span>Start, pause, or resume</span></div>
-            <div><kbd>Esc</kbd><span>Stop the current take</span></div>
-            <div><kbd>⌘</kbd><kbd>E</kbd><span>Export the session</span></div>
-          </div>
+            <p class="piano-panel__hint" id="pianoHint">
+              Home row <kbd>A</kbd>–<kbd>'</kbd> plays white keys, the row above
+              plays the black keys. <kbd>Z</kbd> / <kbd>X</kbd> shift octaves.
+            </p>
+          </section>
+        </main>
 
-          <h2 class="doc__section">Requirements</h2>
-          <p class="doc__body">
-            Web MIDI needs a Chromium-based browser such as Chrome or Edge, served
-            over <code>localhost</code> or HTTPS. Computer-keyboard input and audio
-            work everywhere. Piano, Rhodes, harpsichord, and guitar samples come
-            from the Musyng Kite soundfont via
-            <a href="https://github.com/gleitz/midi-js-soundfonts" rel="noopener">midi-js-soundfonts</a>
-            (CC BY-SA 3.0).
-          </p>
-        </section>
-      </main>
+        <main class="main main--viz" id="viewVisualizer" hidden>
+          <div class="viz" id="vizRoot">
+            <div class="viz__empty" id="vizEmpty">
+              <label class="viz__drop" id="vizDrop" for="vizFile">
+                <div class="viz__drop-title">Drop a MIDI file</div>
+                <p class="viz__drop-copy">
+                  Visualize a <code>.mid</code> from your computer, or pick a
+                  saved take below. Notes fall onto a glowing keyboard — play,
+                  pause, and scrub.
+                </p>
+                <input
+                  class="viz__file"
+                  id="vizFile"
+                  type="file"
+                  accept=".mid,.midi,audio/midi,audio/x-midi"
+                />
+              </label>
+              <div class="viz__history">
+                <div class="viz__history-label">From History</div>
+                <div class="viz__takes" id="vizTakes"></div>
+              </div>
+            </div>
 
-      <footer class="footer">
-        <div class="footer__inner">
-          <div class="footer__top">
-            <div class="footer__start">
-              <div class="footer__brand">Peak Notes</div>
-              <div class="social-links social-links--lg" aria-label="Social">
-                <a
-                  class="social-links__item"
-                  href="https://www.google.com/search?q=piano+is+awesome"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  aria-label="YouTube"
-                  title="YouTube"
+            <div class="viz__stage" id="vizStage" hidden>
+              <canvas class="viz__canvas" id="vizCanvas"></canvas>
+              <div class="viz__toolbar">
+                <div class="viz__title" id="vizTitle">Untitled</div>
+                <div class="viz__look">
+                  <div
+                    class="viz__themes"
+                    id="vizThemes"
+                    role="list"
+                    aria-label="Visualizer themes"
+                  ></div>
+                  <label class="viz__swatch" title="Note color">
+                    <span>Notes</span>
+                    <input
+                      class="viz__color"
+                      id="vizColor"
+                      type="color"
+                      value="#60a5fa"
+                      aria-label="Note color"
+                    />
+                  </label>
+                  <label class="viz__swatch" title="Background color">
+                    <span>Background</span>
+                    <input
+                      class="viz__color"
+                      id="vizBgColor"
+                      type="color"
+                      value="#05060a"
+                      aria-label="Background color"
+                    />
+                  </label>
+                  <label class="viz__dial" title="Particle trail strength">
+                    <span>Trails</span>
+                    <input
+                      id="vizTrail"
+                      type="range"
+                      min="0"
+                      max="100"
+                      value="60"
+                      aria-label="Particle trail strength"
+                    />
+                  </label>
+                  <label class="viz__dial" title="Trail waviness">
+                    <span>Wave</span>
+                    <input
+                      id="vizWave"
+                      type="range"
+                      min="0"
+                      max="100"
+                      value="40"
+                      aria-label="Trail waviness"
+                    />
+                  </label>
+                  <label
+                    class="viz__swatch viz__swatch--file"
+                    title="Set a background image"
+                  >
+                    <span>Image</span>
+                    <input
+                      id="vizBgImage"
+                      type="file"
+                      accept="image/*"
+                      aria-label="Background image"
+                    />
+                  </label>
+                  <button
+                    class="btn btn--ghost btn--sm"
+                    id="btnVizBgClear"
+                    type="button"
+                    hidden
+                  >
+                    Clear image
+                  </button>
+                  <button
+                    class="viz__chip"
+                    id="btnVizLoad"
+                    type="button"
+                    title="Load another MIDI file"
+                  >
+                    <svg viewBox="0 0 24 24" aria-hidden="true">
+                      <path
+                        fill="currentColor"
+                        d="M19.5 21a3 3 0 0 0 3-3v-9a3 3 0 0 0-3-3h-5.379a.75.75 0 0 1-.53-.22L11.47 3.66A3 3 0 0 0 9.379 3H4.5a3 3 0 0 0-3 3v12a3 3 0 0 0 3 3h15Z"
+                      />
+                    </svg>
+                    Load another
+                  </button>
+                </div>
+              </div>
+              <div class="viz__transport">
+                <button
+                  class="icon-btn icon-btn--fill"
+                  id="btnVizRestart"
+                  type="button"
+                  aria-label="Restart"
+                  title="Restart"
                 >
                   <svg viewBox="0 0 24 24" aria-hidden="true">
                     <path
-                      d="M22.5 7.2a3 3 0 0 0-2.1-2.1C18.6 4.6 12 4.6 12 4.6s-6.6 0-8.4.5A3 3 0 0 0 1.5 7.2 31.5 31.5 0 0 0 1 12a31.5 31.5 0 0 0 .5 4.8 3 3 0 0 0 2.1 2.1c1.8.5 8.4.5 8.4.5s6.6 0 8.4-.5a3 3 0 0 0 2.1-2.1A31.5 31.5 0 0 0 23 12a31.5 31.5 0 0 0-.5-4.8z"
-                      fill="none"
-                      stroke="currentColor"
-                      stroke-width="1.5"
-                      stroke-linejoin="round"
+                      fill="currentColor"
+                      d="M4.755 10.059a7.5 7.5 0 0 1 12.548-3.364l1.903 1.903h-3.183a.75.75 0 1 0 0 1.5h4.992a.75.75 0 0 0 .75-.75V4.356a.75.75 0 0 0-1.5 0v3.18l-1.9-1.9A9 9 0 0 0 3.306 9.67a.75.75 0 1 0 1.45.388Zm15.408 3.352a.75.75 0 0 0-.919.53 7.5 7.5 0 0 1-12.548 3.364l-1.902-1.903h3.183a.75.75 0 0 0 0-1.5H2.984a.75.75 0 0 0-.75.75v4.992a.75.75 0 0 0 1.5 0v-3.18l1.9 1.9a9 9 0 0 0 15.059-4.035.75.75 0 0 0-.53-.918Z"
                     />
-                    <path d="M10 9.2 15.2 12 10 14.8V9.2z" fill="currentColor" />
                   </svg>
-                </a>
-                <a
-                  class="social-links__item"
-                  href="https://www.google.com/search?q=piano+is+awesome"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  aria-label="Instagram"
-                  title="Instagram"
+                </button>
+                <button
+                  class="icon-btn icon-btn--fill"
+                  id="btnVizPlay"
+                  type="button"
+                  aria-label="Play"
+                  title="Play (Space)"
                 >
-                  <svg viewBox="0 0 24 24" aria-hidden="true">
-                    <rect
-                      x="3.5"
-                      y="3.5"
-                      width="17"
-                      height="17"
-                      rx="5"
-                      fill="none"
-                      stroke="currentColor"
-                      stroke-width="1.5"
-                    />
-                    <circle
-                      cx="12"
-                      cy="12"
-                      r="4"
-                      fill="none"
-                      stroke="currentColor"
-                      stroke-width="1.5"
-                    />
-                    <circle cx="17.4" cy="6.6" r="1.1" fill="currentColor" />
+                  <svg id="vizPlayIcon" viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M8 5.2v13.6L19.2 12 8 5.2z" fill="currentColor" />
                   </svg>
-                </a>
+                </button>
+                <input
+                  class="viz__seek"
+                  id="vizSeek"
+                  type="range"
+                  min="0"
+                  max="1000"
+                  value="0"
+                  aria-label="Scrub timeline"
+                />
+                <div class="viz__time" id="vizTime">0:00 / 0:00</div>
+              </div>
+            </div>
+          </div>
+        </main>
+
+        <main class="main main--doc" id="viewHistory" hidden>
+          <section class="library">
+            <header class="library__head">
+              <div>
+                <span class="doc__eyebrow">History</span>
+                <h1 class="library__title">Saved sessions</h1>
+                <p class="library__lead">
+                  Every Save or Export lands here. Click a session for the full
+                  breakdown.
+                </p>
+              </div>
+              <button
+                class="btn btn--ghost btn--sm"
+                id="btnClearHistory"
+                type="button"
+              >
+                Clear all
+              </button>
+            </header>
+
+            <div class="library__layout">
+              <div class="session-list" id="historyList" role="list"></div>
+              <aside class="session-detail" id="historyDetail">
+                <div class="session-detail__empty" id="historyDetailEmpty">
+                  Select a session to see notes, duration, voice, and more.
+                </div>
+                <div class="session-detail__body" id="historyDetailBody" hidden>
+                  <div class="session-detail__date" id="detailDate"></div>
+                  <h2 class="session-detail__title" id="detailTitle"></h2>
+                  <p
+                    class="session-detail__desc"
+                    id="detailDescription"
+                    hidden
+                  ></p>
+
+                  <form class="session-edit" id="sessionEditForm">
+                    <label class="session-edit__field">
+                      <span class="session-edit__label">Name</span>
+                      <input
+                        type="text"
+                        id="detailNameInput"
+                        class="session-edit__input"
+                        maxlength="80"
+                        autocomplete="off"
+                        placeholder="Leave blank to use the date"
+                      />
+                    </label>
+                    <label class="session-edit__field">
+                      <span class="session-edit__label">Description</span>
+                      <textarea
+                        id="detailDescriptionInput"
+                        class="session-edit__textarea"
+                        maxlength="400"
+                        rows="3"
+                        placeholder="Optional notes about this take"
+                      ></textarea>
+                    </label>
+                    <div class="session-edit__actions">
+                      <button
+                        class="btn btn--secondary btn--sm"
+                        id="btnDetailSaveMeta"
+                        type="submit"
+                      >
+                        Save details
+                      </button>
+                    </div>
+                  </form>
+
+                  <div class="session-detail__grid" id="detailGrid"></div>
+                  <div class="session-detail__actions">
+                    <button
+                      class="btn btn--secondary btn--sm"
+                      id="btnDetailExport"
+                      type="button"
+                    >
+                      Export .mid
+                    </button>
+                    <button
+                      class="btn btn--secondary btn--sm"
+                      id="btnDetailMp3"
+                      type="button"
+                    >
+                      Export .mp3
+                    </button>
+                    <button
+                      class="btn btn--secondary btn--sm"
+                      id="btnDetailVideo"
+                      type="button"
+                    >
+                      Save Video
+                    </button>
+                    <button
+                      class="btn btn--secondary btn--sm"
+                      id="btnDetailVisualize"
+                      type="button"
+                    >
+                      Visualize
+                    </button>
+                    <button
+                      class="btn btn--ghost btn--sm"
+                      id="btnDetailDelete"
+                      type="button"
+                    >
+                      Delete
+                    </button>
+                  </div>
+                </div>
+              </aside>
+            </div>
+          </section>
+        </main>
+
+        <main class="main main--doc" id="viewStats" hidden>
+          <section class="library">
+            <header class="library__head">
+              <div>
+                <span class="doc__eyebrow">Stats</span>
+                <h1 class="library__title">Practice totals</h1>
+                <p class="library__lead">
+                  Aggregated from every session you have saved.
+                </p>
+              </div>
+            </header>
+
+            <div class="stats-hero" id="statsSince">
+              <div class="stats-hero__label">Time since last save</div>
+              <div class="stats-hero__value" id="statsSinceValue">—</div>
+              <div class="stats-hero__sub" id="statsSinceSub">
+                No sessions saved yet
               </div>
             </div>
 
-            <nav class="footer__nav" aria-label="Site">
-              <a class="footer__home" href="index.html">Home</a>
-              <a class="footer__home" href="blog/">Blog</a>
-            </nav>
-
-            <div class="footer__status">
-              <span id="footerSource">Computer keyboard</span>
-              <span class="footer__pedal" id="footerPedal" hidden>Pedal</span>
-              <span class="footer__mono" id="eventMeta">0 events</span>
+            <div class="stats library-stats" aria-label="Lifetime statistics">
+              <article class="stat-card">
+                <div class="stat-card__label">Total Notes</div>
+                <div class="stat-card__value" id="statsTotalNotes">0</div>
+              </article>
+              <article class="stat-card">
+                <div class="stat-card__label">Sessions</div>
+                <div class="stat-card__value" id="statsSessionCount">0</div>
+              </article>
+              <article class="stat-card">
+                <div class="stat-card__label">Practice Time</div>
+                <div class="stat-card__value" id="statsPracticeTime">0:00</div>
+              </article>
+              <article class="stat-card">
+                <div class="stat-card__label">Notes Today</div>
+                <div class="stat-card__value" id="statsNotesToday">0</div>
+              </article>
+              <article class="stat-card">
+                <div class="stat-card__label">Lifetime Peak NPS</div>
+                <div class="stat-card__value">
+                  <span id="statsPeakNps">0.0</span
+                  ><span class="stat-card__unit">nps</span>
+                </div>
+              </article>
+              <article class="stat-card">
+                <div class="stat-card__label">Avg Notes / Session</div>
+                <div class="stat-card__value" id="statsAvgNotes">0</div>
+              </article>
+              <article class="stat-card">
+                <div class="stat-card__label">Exports</div>
+                <div class="stat-card__value" id="statsExports">0</div>
+              </article>
+              <article class="stat-card">
+                <div class="stat-card__label">Avg Duration</div>
+                <div class="stat-card__value" id="statsAvgDuration">0:00</div>
+              </article>
+              <article class="stat-card">
+                <div class="stat-card__label">Storage Used</div>
+                <div class="stat-card__value" id="statsStorage">0 KB</div>
+                <div class="stat-card__note" id="statsStorageNote">
+                  Saved on this device only
+                </div>
+              </article>
             </div>
-          </div>
+          </section>
+        </main>
 
-          <p class="footer__copy">
-            © <span id="appYear"></span> Peak Notes. Crafted for pianists who keep
-            score. All practice data stays on your device.
-          </p>
-        </div>
-      </footer>
+        <main class="main main--doc" id="viewAbout" hidden>
+          <section class="doc">
+            <span class="doc__eyebrow">About</span>
+            <h1 class="doc__title">Count every note. Keep every take.</h1>
+            <p class="doc__lead">
+              Peak Notes is a browser studio for pianists — capture over USB
+              MIDI or your computer keyboard, watch a live counter built for
+              practice and screen recording, then export a Standard MIDI File, a
+              silent counter video, or drop the take onto a glowing visualizer.
+              Your history stays on this device.
+            </p>
+
+            <div class="doc__grid">
+              <article class="doc-card">
+                <h2 class="doc-card__title">Two ways to play</h2>
+                <p>
+                  Plug in a MIDI instrument such as the Yamaha P-145BT and it is
+                  detected automatically — it always plays and records. The
+                  source toggle decides whether the
+                  <strong>computer keyboard</strong> is also live, so switch to
+                  <strong>MIDI Device</strong> when you want typing to stay
+                  silent. Sustain pedal (CC64) keeps notes ringing under the
+                  damper.
+                </p>
+              </article>
+
+              <article class="doc-card">
+                <h2 class="doc-card__title">Accurate export</h2>
+                <p>
+                  Sessions are written as SMF Format 1 at 480 PPQN with a
+                  dedicated tempo track. Held notes are closed automatically and
+                  leading silence is trimmed so the roll starts on your first
+                  note.
+                </p>
+              </article>
+
+              <article class="doc-card">
+                <h2 class="doc-card__title">Built for capture</h2>
+                <p>
+                  A large live counter, notes per second, peak NPS, elapsed
+                  time, and a Focus view sized for the room. Pause preserves
+                  silence in the timeline. Dark and light themes are included.
+                </p>
+              </article>
+
+              <article class="doc-card">
+                <h2 class="doc-card__title">Your mapping</h2>
+                <p>
+                  The QWERTY layout follows the familiar Virtual Piano
+                  arrangement, and every key can be rebound from the settings
+                  panel. Preferences persist between sessions.
+                </p>
+              </article>
+            </div>
+
+            <h2 class="doc__section">Keyboard layout</h2>
+            <p class="doc__body">
+              The home row plays white keys left to right starting at Middle C,
+              and the row above holds the black keys in their natural gaps.
+            </p>
+            <div class="doc__keys">
+              <div>
+                <kbd>A</kbd><kbd>S</kbd><kbd>D</kbd><kbd>F</kbd><kbd>G</kbd
+                ><kbd>H</kbd><kbd>J</kbd><kbd>K</kbd><kbd>L</kbd><kbd>;</kbd
+                ><kbd>'</kbd><span>White keys</span>
+              </div>
+              <div>
+                <kbd>W</kbd><kbd>E</kbd><kbd>T</kbd><kbd>Y</kbd><kbd>U</kbd
+                ><kbd>O</kbd><kbd>P</kbd><span>Black keys</span>
+              </div>
+              <div>
+                <kbd>Z</kbd><kbd>X</kbd
+                ><span>Octave down / up (arrow keys work too)</span>
+              </div>
+              <div><kbd>Space</kbd><span>Start, pause, or resume</span></div>
+              <div><kbd>Esc</kbd><span>Stop the current take</span></div>
+              <div><kbd>⌘</kbd><kbd>E</kbd><span>Export the session</span></div>
+            </div>
+
+            <h2 class="doc__section">Requirements</h2>
+            <p class="doc__body">
+              Web MIDI needs a Chromium-based browser such as Chrome or Edge,
+              served over <code>localhost</code> or HTTPS. Computer-keyboard
+              input and audio work everywhere. Piano, Rhodes, harpsichord, and
+              guitar samples come from the Musyng Kite soundfont via
+              <a
+                href="https://github.com/gleitz/midi-js-soundfonts"
+                rel="noopener"
+                >midi-js-soundfonts</a
+              >
+              (CC BY-SA 3.0).
+            </p>
+          </section>
+        </main>
+
+        <footer class="footer">
+          <div class="footer__inner">
+            <div class="footer__top">
+              <div class="footer__start">
+                <div class="footer__brand">Peak Notes</div>
+                <div class="social-links social-links--lg" aria-label="Social">
+                  <a
+                    class="social-links__item"
+                    href="https://www.google.com/search?q=piano+is+awesome"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label="YouTube"
+                    title="YouTube"
+                  >
+                    <svg viewBox="0 0 24 24" aria-hidden="true">
+                      <path
+                        d="M22.5 7.2a3 3 0 0 0-2.1-2.1C18.6 4.6 12 4.6 12 4.6s-6.6 0-8.4.5A3 3 0 0 0 1.5 7.2 31.5 31.5 0 0 0 1 12a31.5 31.5 0 0 0 .5 4.8 3 3 0 0 0 2.1 2.1c1.8.5 8.4.5 8.4.5s6.6 0 8.4-.5a3 3 0 0 0 2.1-2.1A31.5 31.5 0 0 0 23 12a31.5 31.5 0 0 0-.5-4.8z"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="1.5"
+                        stroke-linejoin="round"
+                      />
+                      <path
+                        d="M10 9.2 15.2 12 10 14.8V9.2z"
+                        fill="currentColor"
+                      />
+                    </svg>
+                  </a>
+                  <a
+                    class="social-links__item"
+                    href="https://www.google.com/search?q=piano+is+awesome"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label="Instagram"
+                    title="Instagram"
+                  >
+                    <svg viewBox="0 0 24 24" aria-hidden="true">
+                      <rect
+                        x="3.5"
+                        y="3.5"
+                        width="17"
+                        height="17"
+                        rx="5"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="1.5"
+                      />
+                      <circle
+                        cx="12"
+                        cy="12"
+                        r="4"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="1.5"
+                      />
+                      <circle cx="17.4" cy="6.6" r="1.1" fill="currentColor" />
+                    </svg>
+                  </a>
+                </div>
+              </div>
+
+              <nav class="footer__nav" aria-label="Site">
+                <a class="footer__home" href="index.html">Home</a>
+                <a class="footer__home" href="blog/">Blog</a>
+              </nav>
+
+              <div class="footer__status">
+                <span id="footerSource">Computer keyboard</span>
+                <span class="footer__pedal" id="footerPedal" hidden>Pedal</span>
+                <span class="footer__mono" id="eventMeta">0 events</span>
+              </div>
+            </div>
+
+            <p class="footer__copy">
+              © <span id="appYear"></span> Peak Notes. Crafted for pianists who
+              keep score. All practice data stays on your device.
+            </p>
+          </div>
+        </footer>
       </div>
     </div>
 
@@ -866,7 +1011,8 @@
               <div>
                 <div class="setting__title">Instrument voice</div>
                 <div class="setting__desc">
-                  Sampled piano, Rhodes, harpsichord, and guitar. 80s stays a synth.
+                  Sampled piano, Rhodes, harpsichord, and guitar. 80s stays a
+                  synth.
                 </div>
               </div>
               <div class="setting__control">
@@ -885,10 +1031,18 @@
             <div class="setting__row">
               <div>
                 <div class="setting__title">Volume</div>
-                <div class="setting__desc">Playback level for the selected instrument.</div>
+                <div class="setting__desc">
+                  Playback level for the selected instrument.
+                </div>
               </div>
               <div class="setting__control">
-                <input type="range" id="volumeRange" min="0" max="100" value="70" />
+                <input
+                  type="range"
+                  id="volumeRange"
+                  min="0"
+                  max="100"
+                  value="70"
+                />
                 <span class="setting__value" id="volumeValue">70</span>
               </div>
             </div>
@@ -902,7 +1056,11 @@
                   Select a key, then press the key you want to use.
                 </div>
               </div>
-              <button class="btn btn--ghost btn--sm" id="btnResetMapping" type="button">
+              <button
+                class="btn btn--ghost btn--sm"
+                id="btnResetMapping"
+                type="button"
+              >
                 Reset to default
               </button>
             </div>
@@ -940,7 +1098,10 @@
       </button>
 
       <div class="focus__pill" id="focusPill" hidden>
-        <span class="status-bar__dot status-bar__dot--recording" id="focusDot"></span>
+        <span
+          class="status-bar__dot status-bar__dot--recording"
+          id="focusDot"
+        ></span>
         <span id="focusStatus">Recording</span>
       </div>
 
@@ -967,14 +1128,24 @@
           </svg>
           Record
         </button>
-        <button class="btn btn--secondary" id="btnFocusPause" type="button" hidden>
+        <button
+          class="btn btn--secondary"
+          id="btnFocusPause"
+          type="button"
+          hidden
+        >
           <svg viewBox="0 0 16 16" aria-hidden="true">
             <rect x="4" y="3.5" width="2.75" height="9" rx="0.75" />
             <rect x="9.25" y="3.5" width="2.75" height="9" rx="0.75" />
           </svg>
           Pause
         </button>
-        <button class="btn btn--primary" id="btnFocusResume" type="button" hidden>
+        <button
+          class="btn btn--primary"
+          id="btnFocusResume"
+          type="button"
+          hidden
+        >
           <svg viewBox="0 0 16 16" aria-hidden="true">
             <path d="M5 3.5v9l8-4.5-8-4.5z" fill="currentColor" />
           </svg>
@@ -999,10 +1170,16 @@
           <div>
             <h2 class="modal__title">Save Video</h2>
             <p class="modal__subtitle">
-              Silent 1080p · 60 fps counter replay — timing matches your take, including pauses.
+              Silent 1080p · 60 fps counter replay — timing matches your take,
+              including pauses.
             </p>
           </div>
-          <button class="icon-btn" id="btnVideoClose" type="button" aria-label="Close">
+          <button
+            class="icon-btn"
+            id="btnVideoClose"
+            type="button"
+            aria-label="Close"
+          >
             <svg viewBox="0 0 24 24" aria-hidden="true">
               <path d="M18 6 6 18M6 6l12 12" />
             </svg>
@@ -1037,7 +1214,9 @@
                   id="videoStartAtFirstNote"
                   aria-label="Start video at first note"
                 />
-                <span class="switch__track"><span class="switch__thumb"></span></span>
+                <span class="switch__track"
+                  ><span class="switch__thumb"></span
+                ></span>
               </label>
             </div>
 
@@ -1046,10 +1225,16 @@
                 <div class="setting__head">
                   <div>
                     <div class="setting__title">Look presets</div>
-                    <div class="setting__desc">Background + number color pairs.</div>
+                    <div class="setting__desc">
+                      Background + number color pairs.
+                    </div>
                   </div>
                 </div>
-                <div class="video-editor__presets" id="videoLookPresets" role="list"></div>
+                <div
+                  class="video-editor__presets"
+                  id="videoLookPresets"
+                  role="list"
+                ></div>
               </section>
 
               <section class="setting">
@@ -1059,14 +1244,20 @@
                     <div class="setting__desc">All on a black background.</div>
                   </div>
                 </div>
-                <div class="video-editor__presets" id="videoGradientPresets" role="list"></div>
+                <div
+                  class="video-editor__presets"
+                  id="videoGradientPresets"
+                  role="list"
+                ></div>
               </section>
 
               <section class="setting">
                 <div class="setting__row">
                   <div>
                     <div class="setting__title">Text style</div>
-                    <div class="setting__desc">Solid color or a two-stop gradient.</div>
+                    <div class="setting__desc">
+                      Solid color or a two-stop gradient.
+                    </div>
                   </div>
                   <div class="setting__control">
                     <select id="videoTextMode" class="voice-select__control">
@@ -1090,7 +1281,11 @@
                     <div class="setting__title">Gradient end</div>
                   </div>
                   <div class="setting__control">
-                    <input type="color" id="videoTextColorEnd" value="#8eb4d8" />
+                    <input
+                      type="color"
+                      id="videoTextColorEnd"
+                      value="#8eb4d8"
+                    />
                   </div>
                 </div>
 
@@ -1106,20 +1301,48 @@
                       max="360"
                       value="175"
                     />
-                    <span class="setting__value" id="videoGradientAngleValue">175°</span>
+                    <span class="setting__value" id="videoGradientAngleValue"
+                      >175°</span
+                    >
                   </div>
                 </div>
 
                 <div class="setting__row">
                   <div>
                     <div class="setting__title">Background</div>
-                    <div class="setting__desc">Full-frame color behind the counter.</div>
+                    <div class="setting__desc">
+                      Full-frame color behind the counter.
+                    </div>
                   </div>
                   <div class="setting__control video-editor__swatches">
-                    <button type="button" class="video-swatch" data-bg="#000000" title="Black" style="--swatch:#000000"></button>
-                    <button type="button" class="video-swatch" data-bg="#0b1020" title="Navy" style="--swatch:#0b1020"></button>
-                    <button type="button" class="video-swatch" data-bg="#111827" title="Slate" style="--swatch:#111827"></button>
-                    <button type="button" class="video-swatch" data-bg="#ffffff" title="White" style="--swatch:#ffffff"></button>
+                    <button
+                      type="button"
+                      class="video-swatch"
+                      data-bg="#000000"
+                      title="Black"
+                      style="--swatch: #000000"
+                    ></button>
+                    <button
+                      type="button"
+                      class="video-swatch"
+                      data-bg="#0b1020"
+                      title="Navy"
+                      style="--swatch: #0b1020"
+                    ></button>
+                    <button
+                      type="button"
+                      class="video-swatch"
+                      data-bg="#111827"
+                      title="Slate"
+                      style="--swatch: #111827"
+                    ></button>
+                    <button
+                      type="button"
+                      class="video-swatch"
+                      data-bg="#ffffff"
+                      title="White"
+                      style="--swatch: #ffffff"
+                    ></button>
                     <input type="color" id="videoBgColor" value="#000000" />
                   </div>
                 </div>
@@ -1128,7 +1351,10 @@
 
             <div class="video-editor__progress" id="videoProgressBlock" hidden>
               <div class="video-editor__progress-bar">
-                <div class="video-editor__progress-fill" id="videoProgressFill"></div>
+                <div
+                  class="video-editor__progress-fill"
+                  id="videoProgressFill"
+                ></div>
               </div>
               <div class="video-editor__progress-label" id="videoProgressLabel">
                 Preparing…
@@ -1145,10 +1371,19 @@
               >
                 Customization
               </button>
-              <button class="btn btn--primary" id="btnVideoRender" type="button">
+              <button
+                class="btn btn--primary"
+                id="btnVideoRender"
+                type="button"
+              >
                 Download MP4
               </button>
-              <button class="btn btn--danger" id="btnVideoCancel" type="button" hidden>
+              <button
+                class="btn btn--danger"
+                id="btnVideoCancel"
+                type="button"
+                hidden
+              >
                 Cancel
               </button>
               <p class="video-editor__compat" id="videoCompat" hidden></p>
